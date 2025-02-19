@@ -1,0 +1,39 @@
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  
+  .landing-logo {
+    width: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .landing-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .landing-description {
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    max-width: 500px;
+  }
+  
+  .get-started-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .get-started-button:hover {
+    background-color: #0056b3;
+  }
