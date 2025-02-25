@@ -1,142 +1,158 @@
-import React from 'react';
-import './Dashboard.css'; // We'll use the same CSS for consistency
+import React, { useState, useEffect, useRef } from 'react';
+import './Dashboard.css';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { Link, useNavigate } from 'react-router-dom';
+import { db, auth, storage } from '../firebase'; // Import from firebase.js
+import { onSnapshot, collection, getDocs, updateDoc, deleteDoc, doc, addDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// ... rest of your code remains unchanged ...
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const AdminDashboard = ({ user }) => {
-  // Sample data for charts
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [resourceName, setResourceName] = useState('');
+  const [resourceDetails, setResourceDetails] = useState('');
+  const [resourceType, setResourceType] = useState('pdf');
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate(); // Added for navigation after logout
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const requestsSnapshot = await getDocs(collection(db, 'requests'));
+      const resourcesSnapshot = await getDocs(collection(db, 'resources'));
+      setPendingRequests(requestsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setResources(resourcesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchData();
+  }, []);
+
+  const handleApprove = async (id) => {
+    await updateDoc(doc(db, 'requests', id), { status: 'approved' });
+    setPendingRequests(prev => prev.filter(req => req.id !== id));
+  };
+
+  const handleReject = async (id) => {
+    await deleteDoc(doc(db, 'requests', id));
+    setPendingRequests(prev => prev.filter(req => req.id !== id));
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]); // Store the selected file
+  };
+
+  const handleAddResource = async () => {
+    let fileUrl = '';
+    if (file) {
+      const storageRef = ref(storage, `resources/${file.name}`); // Create a reference in Storage
+      await uploadBytes(storageRef, file); // Upload the file
+      fileUrl = await getDownloadURL(storageRef); // Get the download URL
+    }
+
+    const newResource = {
+      title: resourceName,
+      description: resourceDetails,
+      type: resourceType,
+      status: 'available',
+      fileUrl: fileUrl || '', // Include file URL if uploaded
+    };
+
+    const docRef = await addDoc(collection(db, 'resources'), newResource);
+    setResources([...resources, { id: docRef.id, ...newResource }]);
+    setResourceName('');
+    setResourceDetails('');
+    setFile(null); // Reset file input
+    fileInputRef.current.value = null; // Clear the input field
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/'); // Redirect to landing page after logout
+    } catch (error) {
+      console.error('Logout error:', error.message);
+    }
+  };
+
   const barData = {
-    labels: ['Resource 1', 'Resource 2', 'Resource 3', 'Resource 4', 'Resource 5'],
-    datasets: [
-      {
-        label: 'Number of Requests',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-      },
-    ],
+    labels: resources.map(r => r.title),
+    datasets: [{ label: 'Requests', data: resources.map(() => Math.floor(Math.random() * 20)), backgroundColor: 'rgba(75, 192, 192, 0.2)' }],
   };
 
   const pieData = {
-    labels: ['Active Users', 'Inactive Users'],
-    datasets: [
-      {
-        data: [300, 50],
-        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  // Sample pending requests data
-  const pendingRequests = [
-    { id: 1, userName: 'Alice', requestedItem: 'Resource 1', status: 'Pending' },
-    { id: 2, userName: 'Bob', requestedItem: 'Resource 2', status: 'Pending' },
-    // Add more pending requests as needed
-  ];
-
-  const handleApprove = (id) => {
-    console.log(`Approved request with ID: ${id}`);
-  };
-
-  const handleReject = (id) => {
-    console.log(`Rejected request with ID: ${id}`);
+    labels: ['Pending', 'Approved'],
+    datasets: [{ data: [pendingRequests.length, resources.length - pendingRequests.length], backgroundColor: ['#FF6384', '#36A2EB'] }],
   };
 
   return (
     <div className="dashboard-container">
-      {/* Navigation Bar */}
       <nav className="navbar">
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/resources">Resources</a></li>
-          <li><a href="/profile">Profile</a></li>
-          <li><a href="/logout">Logout</a></li> {/* Sign out button */}
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/admin-dashboard">Resources</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
+          <li><Link to="/" onClick={handleLogout}>Logout</Link></li> {/* Updated logout */}
         </ul>
       </nav>
 
-      {/* User Greeting */}
       <div className="user-greeting">
         <h1>Welcome, {user.name} (Admin)!</h1>
       </div>
 
-      {/* Quick Links */}
-      <div className="quick-links">
-        <h2>Admin Quick Links</h2>
-        <ul>
-          <li><a href="/upload">Upload</a></li>
-          <li><a href="/view-resources">View Available Resources</a></li>
-          <div className="feature-cards">
-        <div className="card">
-          <h2>Effortless Resource Requests</h2>
-          <p>Streamline your resource requests with our easy-to-use system.</p>
-          <button className="read-more-button">Read More</button>
-        </div>
-        <div className="card">
-          <h2>AI-Powered Recommendations</h2>
-          <p>Get personalized resource recommendations based on your needs.</p>
-          <button className="read-more-button">Read More</button>
-        </div>
-        <div className="card">
-          <h2>Centralized Resource Management</h2>
-          <p>Manage all your resources in one place efficiently and effectively.</p>
-          <button className="read-more-button">Read More</button>
-        </div>
-      </div>
-          <li><a href="/recent-activity">Recent Activity</a></li>
-          <table>
-          <thead>
-            <tr>
-              <th>User Name</th>
-              <th>Requested Item</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pendingRequests.map(request => (
-              <tr key={request.id}>
-                <td>{request.userName}</td>
-                <td>{request.requestedItem}</td>
-                <td>{request.status}</td>
-                <td>
-                  <button onClick={() => handleApprove(request.id)}>Approve</button>
-                  <button onClick={() => handleReject(request.id)}>Reject</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-          <li><a href="/manage-users">Manage Users</a></li> {/* Admin-specific link */}
-          <li><a href="/settings">Settings</a></li> {/* Additional admin link */}
-        </ul>
+      <div className="admin-controls">
+        <h2>Manage Resources</h2>
+        <input
+          type="text"
+          placeholder="Resource Name"
+          value={resourceName}
+          onChange={(e) => setResourceName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          value={resourceDetails}
+          onChange={(e) => setResourceDetails(e.target.value)}
+        />
+        <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+          <option value="pdf">PDF</option>
+          <option value="training">Training</option>
+          <option value="course">Course</option>
+        </select>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx" // Restrict to common file types
+        />
+        <button onClick={handleAddResource}>Add Resource</button>
       </div>
 
-      {/* Pending Requests Table */}
       <div className="pending-requests">
         <h2>Pending Requests</h2>
         <table>
           <thead>
             <tr>
-              <th>User Name</th>
-              <th>Requested Item</th>
+              <th>User ID</th>
+              <th>Resource ID</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {pendingRequests.map(request => (
-              <tr key={request.id}>
-                <td>{request.userName}</td>
-                <td>{request.requestedItem}</td>
-                <td>{request.status}</td>
+            {pendingRequests.map(req => (
+              <tr key={req.id}>
+                <td>{req.userId}</td>
+                <td>{req.resourceId}</td>
+                <td>{req.status}</td>
                 <td>
-                  <button onClick={() => handleApprove(request.id)}>Approve</button>
-                  <button onClick={() => handleReject(request.id)}>Reject</button>
+                  <button onClick={() => handleApprove(req.id)}>Approve</button>
+                  <button onClick={() => handleReject(req.id)}>Reject</button>
                 </td>
               </tr>
             ))}
@@ -144,14 +160,13 @@ const AdminDashboard = ({ user }) => {
         </table>
       </div>
 
-      {/* Data Visualization */}
       <div className="analytics-section">
         <h2>Analytics</h2>
         <div className="chart-container">
-          <Bar data={barData} options={{ responsive: true, maintainAspectRatio: false }} />
+          <Bar data={barData} options={{ responsive: true }} />
         </div>
         <div className="chart-container">
-          <Pie data={pieData} options={{ responsive: true, maintainAspectRatio: false }} />
+          <Pie data={pieData} options={{ responsive: true }} />
         </div>
       </div>
     </div>

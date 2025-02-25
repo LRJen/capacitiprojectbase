@@ -1,55 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import LandingPage from './components/LandingPage';
 import WelcomePage from './components/WelcomePage';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
-import AdminDashboard from './components/AdminDashboard'; // Import the AdminDashboard component
-import { useNavigate } from 'react-router-dom';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import AdminDashboard from './components/AdminDashboard';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { auth, db } from './firebase'; // Import from firebase.js
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
-// Wrapper component for the landing page to handle navigation
+// ... rest of your code remains unchanged ...
+
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
-
-  // Handle navigation to the welcome page
-  const handleGetStarted = () => {
-    navigate('/welcome');
-  };
-
+  const handleGetStarted = () => navigate('/welcome');
   return <LandingPage onGetStarted={handleGetStarted} />;
 };
 
 const App = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleUserRegister = () => {
-    setIsAdmin(false);
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        if (currentUser) {
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userRef);
+          if (userDoc.exists()) {
+            setUser({ ...currentUser, ...userDoc.data() });
+          } else {
+            setUser(currentUser); // Fallback if no Firestore doc exists
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUser(null); // Handle error gracefully
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const handleAdminRegister = () => {
-    setIsAdmin(true);
-  };
-
-  // Example user data (replace with actual user data as needed)
-  const user = {
-    name: 'John Doe',
-    role: isAdmin ? 'admin' : 'user'
-  };
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <Router>
       <Routes>
-        {/* Route for the landing page */}
         <Route path="/" element={<LandingPageWrapper />} />
-        {/* Route for the welcome page with registration handlers */}
-        <Route path="/welcome" element={<WelcomePage onUserRegister={handleUserRegister} onAdminRegister={handleAdminRegister} />} />
-        {/* Route for the auth form, passing isAdmin as a prop */}
-        <Route path="/auth" element={<AuthForm isAdmin={isAdmin} />} />
-        {/* Route for the dashboard, passing user data as a prop */}
-        <Route path="/dashboard" element={<Dashboard user={user} />} />
-        {/* Route for the admin dashboard, passing user data as a prop */}
-        <Route path="/admin-dashboard" element={<AdminDashboard user={user} />} />
+        <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/auth" element={<AuthForm />} />
+        <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <LandingPageWrapper />} />
+        <Route
+          path="/admin-dashboard"
+          element={user && user.role === 'admin' ? <AdminDashboard user={user} /> : <LandingPageWrapper />}
+        />
       </Routes>
     </Router>
   );

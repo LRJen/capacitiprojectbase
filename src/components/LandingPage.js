@@ -1,7 +1,7 @@
 import React from 'react';
 import './LandingPage.css';
 import logo from '../assets/Capture.PNG';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = ({ onGetStarted }) => {
   return (

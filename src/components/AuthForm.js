@@ -1,44 +1,44 @@
 import React, { useState } from 'react';
 import './AuthForm.css';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase'; // Import from firebase.js
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
-const AuthForm = ({ isAdmin: initialIsAdmin }) => {
+const AuthForm = () => {
   const [isSignUp, setIsSignUp] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [adminCode, setAdminCode] = useState('');
-
   const navigate = useNavigate();
   const adminCodeHardcoded = '12345';
 
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
-    if (isSignUp) {
-      // Simulate sign-up logic
-      console.log('Sign-up logic');
-      // Redirect based on user role after sign-up
-      if (isAdmin) {
-        navigate('/admin-dashboard');
+    try {
+      if (isSignUp) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const role = isAdmin && adminCode === adminCodeHardcoded ? 'admin' : 'user';
+        await setDoc(doc(db, 'users', user.uid), {
+          name: username,
+          role,
+          email,
+          createdAt: new Date(),
+        });
+        navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
       } else {
-        navigate('/dashboard');
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : 'user';
+        navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
       }
-    } else {
-      // Login logic
-      console.log('Login logic'); // Debug output
-      if (isAdmin) {
-        if (adminCode !== adminCodeHardcoded) {
-          console.log('Invalid Admin Code');
-          alert('Invalid Admin Code');
-        } else {
-          console.log('Admin login successful');
-          navigate('/admin-dashboard');
-        }
-      } else {
-        console.log('User login successful');
-        navigate('/dashboard');
-      }
+    } catch (error) {
+      console.error('Authentication error:', error.message);
+      alert(error.message);
     }
   };
 
@@ -94,4 +94,5 @@ const AuthForm = ({ isAdmin: initialIsAdmin }) => {
     </div>
   );
 };
+
 export default AuthForm;
