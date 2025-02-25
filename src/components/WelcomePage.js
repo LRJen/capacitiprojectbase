@@ -1,7 +1,7 @@
 import React from 'react';
 import './WelcomePage.css';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/Capture.PNG';
+import logo from '../assets/nameLogo.jpg';
 
 const WelcomePage = ({ onUserRegister, onAdminRegister }) => {
   const navigate = useNavigate();

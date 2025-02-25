@@ -7,7 +7,7 @@
   min-height: 100vh;
   padding: 20px;
   background: #f8f9fa;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .back-button {
@@ -29,9 +29,13 @@
 
 .auth-title {
   font-size: 2rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #1D2848;
   margin-bottom: 20px;
+}
+
+.auth-title h1:nth-child(-n + 8) {
+  color:#1D2848
 }
 
 .auth-toggle-buttons {
@@ -50,7 +54,7 @@
 }
 
 .auth-toggle-buttons .active {
-  background: #4b9cea;
+  background: #1D2848;
   color: white;
 }
 
@@ -66,27 +70,31 @@
   max-width: 400px;
   background: #fff;
   padding: 20px;
+  border: 2px solid #1D2848;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .auth-form input {
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 2px solid #F3564F;
   border-radius: 5px;
   font-size: 1rem;
+  text-align: center;
   outline: none;
   transition: border-color 0.3s ease;
 }
 
 .auth-form input:focus {
-  border-color: #4b9cea;
+  border-color: #1D2848;
 }
 
 .auth-button {
   padding: 12px;
+  width: 30%;
+  align-self: center;
   border: none;
-  background: #4b9cea;
+  background: #1D2848;
   color: white;
   border-radius: 5px;
   font-size: 1rem;
@@ -95,7 +103,7 @@
 }
 
 .auth-button:hover {
-  background: #1e90ff;
+  background: #F3564F;
 }
 
 .toggle-form-button {
@@ -117,14 +125,8 @@
   text-align: center;
 }
 
-.auth-footer img {
-  width: 100px;
-  margin-bottom: 10px;
-}
-
-.auth-footer p {
-  color: #666;
-  font-size: 0.9rem;
+.landing-logo {
+  width: 300px;
 }
 
 /* Responsive Design */
