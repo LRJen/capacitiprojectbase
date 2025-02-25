@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase'; // Import from firebase.js
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import logo from '../assets/nameLogo.jpg';
+import logoName from '../assets/nameLogo.jpg';
 
 
 const AuthForm = () => {
@@ -90,7 +90,7 @@ const AuthForm = () => {
         {isSignUp ? 'Switch to Login' : 'Switch to Register'}
       </button>
       <footer className="auth-footer">
-      <img src={logo} className="landing-logo" alt="CAPACITI logo" />
+      <img src={logoName} className="landing-logo" alt="CAPACITI logo" />
       </footer>
     </div>
   );
