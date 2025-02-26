@@ -11,14 +11,14 @@
 }
 
 .landing-logo {
-  width: 150px;
-  margin-bottom: 20px;
+  width: 400px;
 }
 
 .landing-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
+  font-weight: bolder;
   font-weight: 600;
-  color: #333;
+  color: #1D2848;
   margin-bottom: 15px;
 }
 
@@ -32,7 +32,7 @@
 .get-started-button {
   padding: 12px 24px;
   border: none;
-  background: #4b9cea;
+  background: #F3564F;
   color: white;
   border-radius: 5px;
   font-size: 1.1rem;
