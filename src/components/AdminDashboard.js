@@ -7,6 +7,8 @@ import { db, auth, storage } from '../firebase'; // Import from firebase.js
 import { onSnapshot, collection, getDocs, updateDoc, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import logo from '../assets/Logo.jpg';
+
 
 // ... rest of your code remains unchanged ...
 
@@ -91,19 +93,28 @@ const AdminDashboard = ({ user }) => {
   };
 
   return (
+
     <div className="dashboard-container">
+
+      <header className="header">
+        <img src={logo} className="logo" alt="CAPACITI logo"/>
+        <h1 className="title">Resource Hub Dashboard</h1>
+        <div className="user-info">
+          <h2>Welcome, {user.name}!</h2>
+          <p>Role: {user.role}</p>
+        </div>
+        <div className="user-controls">
+          <button onClick={handleLogout} className="logout-button">Logout</button>
+        </div>
+      </header>
+
       <nav className="navbar">
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/admin-dashboard">Resources</Link></li>
           <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/" onClick={handleLogout}>Logout</Link></li> {/* Updated logout */}
         </ul>
       </nav>
-
-      <div className="user-greeting">
-        <h1>Welcome, {user.name} (Admin)!</h1>
-      </div>
 
       <div className="admin-controls">
         <h2>Manage Resources</h2>
