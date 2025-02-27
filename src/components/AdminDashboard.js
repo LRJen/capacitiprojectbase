@@ -6,7 +6,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth, db, storage } from '../firebase';
 import { ref as dbRef, onValue, push, update, remove } from 'firebase/database';
 import { signOut } from 'firebase/auth';
+<<<<<<< HEAD
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+=======
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import logo from '../assets/Logo.jpg';
+
+
+// ... rest of your code remains unchanged ...
+>>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -168,19 +176,33 @@ const AdminDashboard = ({ user }) => {
   };
 
   return (
+
     <div className="dashboard-container">
+
+      <header className="header">
+        <img src={logo} className="logo" alt="CAPACITI logo"/>
+        <h1 className="title">Resource Hub Dashboard</h1>
+        <div className="user-info">
+          <h2>Welcome, {user.name}!</h2>
+          <p>Role: {user.role}</p>
+        </div>
+        <div className="user-controls">
+          <button onClick={handleLogout} className="logout-button">Logout</button>
+        </div>
+      </header>
+
       <nav className="navbar">
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/admin-dashboard">Resources</Link></li>
+<<<<<<< HEAD
           
           <li><Link to="/" onClick={handleLogout}>Logout</Link></li>
+=======
+          <li><Link to="/profile">Profile</Link></li>
+>>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
         </ul>
       </nav>
-
-      <div className="user-greeting">
-        <h1>Welcome, {user.name} (Admin)!</h1>
-      </div>
 
       <div className="admin-controls">
         <h2>Manage Resources</h2>

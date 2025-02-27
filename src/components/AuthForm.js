@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AuthForm.css';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import { auth, db } from '../firebase';
 import { ref as dbRef, set, get } from 'firebase/database';
 import { 
@@ -8,6 +9,13 @@ import {
   signInWithEmailAndPassword, 
   sendPasswordResetEmail 
 } from 'firebase/auth';
+=======
+import { auth, db } from '../firebase'; // Import from firebase.js
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import logoName from '../assets/nameLogo.jpg';
+
+>>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
 
 const AuthForm = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -307,8 +315,7 @@ const AuthForm = () => {
       )}
 
       <footer className="auth-footer">
-        <img src="capaciti-logo.png" alt="CAPACITI logo" />
-        <p>CAPACITI</p>
+      <img src={logoName} className="landing-logo" alt="CAPACITI logo" />
       </footer>
     </div>
   );

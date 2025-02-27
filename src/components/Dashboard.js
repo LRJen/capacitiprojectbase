@@ -4,7 +4,15 @@ import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell, Search, User } from 'lucide-react';
 import './Dashboard.css';
+<<<<<<< HEAD
 import { ref as dbRef, onValue, push } from 'firebase/database';
+=======
+//import { onSnapshot,  } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
+import logo from '../assets/Logo.jpg';
+
+
+>>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();
@@ -86,7 +94,8 @@ const Dashboard = ({ user }) => {
   return (
     <div className="dashboard-container">
       <header className="header">
-        <h1 className="title">Resource Dashboard</h1>
+        <img src={logo} className="logo" alt="CAPACITI logo"/>
+        <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-info">
           <h2>Welcome, {user.name}!</h2>
           <p>Role: {user.role}</p>
