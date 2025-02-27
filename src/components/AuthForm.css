@@ -137,3 +137,54 @@
     font-size: 1.5rem;
   }
 }
+
+/* Add to AuthForm.css */
+.forgot-password-button {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #4b9cea;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.forgot-password-button:hover {
+  color: #357abd;
+}
+
+/* Add to AuthForm.css */
+.validation-feedback {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.validation-feedback span {
+  display: block;
+}
+
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
+}
+
+/* Existing forgot-password-button styles (ensure these are present) */
+.forgot-password-button {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #4b9cea;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.forgot-password-button:hover {
+  color: #357abd;
+}

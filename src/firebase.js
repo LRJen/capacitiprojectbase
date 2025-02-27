@@ -4,11 +4,13 @@ import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getDatabase } from 'firebase/database';
 
 // Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBwBgGhU6w080DW_XP_cIByvz7ctZA-hKY",
   authDomain: "my-app-6b118.firebaseapp.com",
+  databaseURL: "https://my-app-6b118-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "my-app-6b118",
   storageBucket: "my-app-6b118.firebasestorage.app",
   messagingSenderId: "402071573813",
@@ -20,7 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getDatabase(app);
 const storage = getStorage(app);
 
 export { auth, db, analytics, storage }; // Export analytics if you plan to use it later

@@ -3,12 +3,10 @@ import './Dashboard.css';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
 import { Link, useNavigate } from 'react-router-dom';
-import { db, auth, storage } from '../firebase'; // Import from firebase.js
-import { onSnapshot, collection, getDocs, updateDoc, deleteDoc, doc, addDoc } from 'firebase/firestore';
+import { auth, db, storage } from '../firebase';
+import { ref as dbRef, onValue, push, update, remove } from 'firebase/database';
 import { signOut } from 'firebase/auth';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
-// ... rest of your code remains unchanged ...
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -20,65 +18,144 @@ const AdminDashboard = ({ user }) => {
   const [resourceDetails, setResourceDetails] = useState('');
   const [resourceType, setResourceType] = useState('pdf');
   const [file, setFile] = useState(null);
+  const [logs, setLogs] = useState([]);
   const fileInputRef = useRef(null);
-  const navigate = useNavigate(); // Added for navigation after logout
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const requestsSnapshot = await getDocs(collection(db, 'requests'));
-      const resourcesSnapshot = await getDocs(collection(db, 'resources'));
-      setPendingRequests(requestsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setResources(resourcesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    addLog('Component mounted');
+    const resourcesRef = dbRef(db, 'resources');
+    const requestsRef = dbRef(db, 'requests');
+
+    const unsubscribeResources = onValue(resourcesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const resourceList = Object.entries(data).map(([id, value]) => ({ id, ...value }));
+        setResources(resourceList);
+        addLog('Resources fetched successfully from Realtime Database');
+      } else {
+        setResources([]);
+        addLog('No resources found');
+      }
+    }, (error) => {
+      addLog(`Resources fetch error: ${error.message}`);
+    });
+
+    const unsubscribeRequests = onValue(requestsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const requestList = Object.entries(data).map(([id, value]) => ({ id, ...value }));
+        setPendingRequests(requestList);
+        addLog('Requests fetched successfully from Realtime Database');
+      } else {
+        setPendingRequests([]);
+        addLog('No pending requests found');
+      }
+    }, (error) => {
+      addLog(`Requests fetch error: ${error.message}`);
+    });
+
+    return () => {
+      unsubscribeResources();
+      unsubscribeRequests();
     };
-    fetchData();
   }, []);
 
+  const addLog = (message) => {
+    setLogs(prev => [...prev, { timestamp: new Date().toLocaleTimeString(), message }]);
+    console.log(message);
+  };
+
   const handleApprove = async (id) => {
-    await updateDoc(doc(db, 'requests', id), { status: 'approved' });
-    setPendingRequests(prev => prev.filter(req => req.id !== id));
+    try {
+      await update(dbRef(db, `requests/${id}`), { status: 'approved' });
+      setPendingRequests(prev => prev.filter(req => req.id !== id));
+      setResources(prev => prev.map(res => res.id === id ? { ...res, status: 'approved' } : res));
+      addLog(`Request ${id} approved`);
+    } catch (error) {
+      addLog(`Approve error: ${error.message}`);
+    }
   };
 
   const handleReject = async (id) => {
-    await deleteDoc(doc(db, 'requests', id));
-    setPendingRequests(prev => prev.filter(req => req.id !== id));
+    try {
+      await remove(dbRef(db, `requests/${id}`));
+      setPendingRequests(prev => prev.filter(req => req.id !== id));
+      addLog(`Request ${id} rejected`);
+    } catch (error) {
+      addLog(`Reject error: ${error.message}`);
+    }
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]); // Store the selected file
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+      addLog(`File selected: ${selectedFile.name} (Size: ${selectedFile.size} bytes)`);
+    } else {
+      addLog('No file selected or file input cleared');
+    }
   };
 
   const handleAddResource = async () => {
-    let fileUrl = '';
-    if (file) {
-      const storageRef = ref(storage, `resources/${file.name}`); // Create a reference in Storage
-      await uploadBytes(storageRef, file); // Upload the file
-      fileUrl = await getDownloadURL(storageRef); // Get the download URL
+    addLog('Add Resource button clicked');
+    if (!resourceName) {
+      addLog('Error: Resource name is required');
+      alert('Please enter a resource name');
+      return;
     }
 
-    const newResource = {
-      title: resourceName,
-      description: resourceDetails,
-      type: resourceType,
-      status: 'available',
-      fileUrl: fileUrl || '', // Include file URL if uploaded
-    };
+    try {
+      let fileUrl = '';
+      if (file) {
+        addLog(`Uploading file to Firebase Storage: ${file.name}`);
+        const fileRef = storageRef(storage, `resources/${file.name}`);
+        await uploadBytes(fileRef, file);
+        fileUrl = await getDownloadURL(fileRef);
+        addLog(`File uploaded successfully, URL: ${fileUrl}`);
+      } else {
+        addLog('No file to upload');
+      }
 
-    const docRef = await addDoc(collection(db, 'resources'), newResource);
-    setResources([...resources, { id: docRef.id, ...newResource }]);
-    setResourceName('');
-    setResourceDetails('');
-    setFile(null); // Reset file input
-    fileInputRef.current.value = null; // Clear the input field
+      const newResource = {
+        title: resourceName,
+        description: resourceDetails,
+        type: resourceType,
+        status: 'available',
+        fileUrl: fileUrl || '',
+        createdAt: new Date().toISOString(),
+      };
+      addLog(`Adding resource to Realtime Database: ${JSON.stringify(newResource)}`);
+      const resourcesRef = dbRef(db, 'resources');
+      const newResourceRef = await push(resourcesRef, newResource);
+      addLog(`Resource added with ID: ${newResourceRef.key}`);
+
+      setResources(prev => [...prev, { id: newResourceRef.key, ...newResource }]);
+      setResourceName('');
+      setResourceDetails('');
+      setFile(null);
+      fileInputRef.current.value = null;
+      addLog('Form reset');
+      alert('Resource added successfully!');
+    } catch (error) {
+      addLog(`Error adding resource: ${error.message}`);
+      alert(`Failed to add resource: ${error.message}`);
+    }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/'); // Redirect to landing page after logout
+      navigate('/');
+      addLog('Logged out successfully');
     } catch (error) {
-      console.error('Logout error:', error.message);
+      addLog(`Logout error: ${error.message}`);
     }
   };
+
+  const filteredResources = resources.filter(resource =>
+    resource.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const barData = {
     labels: resources.map(r => r.title),
@@ -96,8 +173,8 @@ const AdminDashboard = ({ user }) => {
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/admin-dashboard">Resources</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/" onClick={handleLogout}>Logout</Link></li> {/* Updated logout */}
+          
+          <li><Link to="/" onClick={handleLogout}>Logout</Link></li>
         </ul>
       </nav>
 
@@ -128,9 +205,59 @@ const AdminDashboard = ({ user }) => {
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept=".pdf,.doc,.docx" // Restrict to common file types
+          accept=".pdf,.doc,.docx"
         />
         <button onClick={handleAddResource}>Add Resource</button>
+      </div>
+
+      <div className="resources-list">
+        <h2>Resources</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>File</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredResources.map(resource => (
+              <tr key={resource.id}>
+                <td>{resource.title}</td>
+                <td>{resource.type}</td>
+                <td>{resource.status}</td>
+                <td>
+                  {resource.fileUrl ? (
+                    <a href={resource.fileUrl} download={resource.title} target="_blank" rel="noopener noreferrer">
+                      Download
+                    </a>
+                  ) : 'No file'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="log-table">
+        <h2>Action Logs</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map((log, index) => (
+              <tr key={index}>
+                <td>{log.timestamp}</td>
+                <td>{log.message}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="pending-requests">
