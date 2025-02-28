@@ -1,67 +1,92 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import logo from '../assets/Logo.jpg';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db, storage } from '../firebase';
+import { auth, db } from '../firebase';
 import { ref as dbRef, onValue, push, update, remove } from 'firebase/database';
 import { signOut } from 'firebase/auth';
-<<<<<<< HEAD
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-=======
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import logo from '../assets/Logo.jpg';
-
-
-// ... rest of your code remains unchanged ...
->>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
+import { Bell, User } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const AdminDashboard = ({ user }) => {
-  const [pendingRequests, setPendingRequests] = useState([]);
+  const [allRequests, setAllRequests] = useState([]);
   const [resources, setResources] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [resourceName, setResourceName] = useState('');
   const [resourceDetails, setResourceDetails] = useState('');
   const [resourceType, setResourceType] = useState('pdf');
   const [file, setFile] = useState(null);
+  const [contentUrl, setContentUrl] = useState('');
   const [logs, setLogs] = useState([]);
-  const fileInputRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [editResourceId, setEditResourceId] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     addLog('Component mounted');
-    const resourcesRef = dbRef(db, 'resources');
-    const requestsRef = dbRef(db, 'requests');
+    setLoading(true);
 
+    // Fetch resources (real-time listener)
+    const resourcesRef = dbRef(db, 'resources');
     const unsubscribeResources = onValue(resourcesRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        const resourceList = Object.entries(data).map(([id, value]) => ({ id, ...value }));
-        setResources(resourceList);
-        addLog('Resources fetched successfully from Realtime Database');
-      } else {
-        setResources([]);
-        addLog('No resources found');
-      }
+      console.log('AdminDashboard.js - Raw resources data from Firebase:', data);
+      const resourceList = data
+        ? Object.entries(data).map(([id, value]) => ({
+            id,
+            title: value.title || 'Untitled',
+            description: value.description || '',
+            type: value.type || 'unknown',
+            content: value.content || '',
+            status: value.status || 'available',
+            createdAt: value.createdAt || '',
+          }))
+        : [];
+      console.log('AdminDashboard.js - Processed resources:', resourceList);
+      setResources(resourceList);
+      checkLoadingComplete(resourceList, allRequests);
     }, (error) => {
-      addLog(`Resources fetch error: ${error.message}`);
+      console.error('AdminDashboard.js - Error fetching resources:', error.code, error.message);
+      setError('Failed to load resources: ' + error.message);
+      setLoading(false);
     });
 
+    // Fetch all requests (real-time listener)
+    const requestsRef = dbRef(db, 'requests');
     const unsubscribeRequests = onValue(requestsRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        const requestList = Object.entries(data).map(([id, value]) => ({ id, ...value }));
-        setPendingRequests(requestList);
-        addLog('Requests fetched successfully from Realtime Database');
-      } else {
-        setPendingRequests([]);
-        addLog('No pending requests found');
-      }
+      console.log('AdminDashboard.js - Raw requests data from Firebase:', data);
+      const requestList = data
+        ? Object.entries(data).map(([id, value]) => ({
+            id,
+            userId: value.userId || 'Unknown User',
+            resourceId: value.resourceId || 'Unknown Resource',
+            status: value.status || 'pending',
+            timestamp: value.timestamp || 'Unknown Time',
+          }))
+        : [];
+      console.log('AdminDashboard.js - Processed all requests:', requestList);
+      setAllRequests(requestList);
+      checkLoadingComplete(resources, requestList);
     }, (error) => {
-      addLog(`Requests fetch error: ${error.message}`);
+      console.error('AdminDashboard.js - Error fetching requests:', error.code, error.message);
+      setError('Failed to load requests: ' + error.message);
+      setLoading(false);
     });
+
+    // Function to check if all data is loaded
+    const checkLoadingComplete = (res, reqs) => {
+      if (res.length > -1 && reqs.length > -1) {
+        console.log('AdminDashboard.js - All data loaded:', { resources: res.length, requests: reqs.length });
+        setLoading(false);
+      }
+    };
 
     return () => {
       unsubscribeResources();
@@ -71,58 +96,78 @@ const AdminDashboard = ({ user }) => {
 
   const addLog = (message) => {
     setLogs(prev => [...prev, { timestamp: new Date().toLocaleTimeString(), message }]);
-    console.log(message);
+    console.log('AdminDashboard.js - Log:', message);
   };
 
-  const handleApprove = async (id) => {
+  const addNotification = (message) => {
+    setNotifications(prev => [...prev, { id: Date.now(), message, timestamp: new Date().toLocaleTimeString() }]);
+  };
+
+  const handleApprove = async (id, userId, resourceId) => {
     try {
+      console.log('AdminDashboard.js - Approving request:', { id, userId, resourceId });
       await update(dbRef(db, `requests/${id}`), { status: 'approved' });
-      setPendingRequests(prev => prev.filter(req => req.id !== id));
-      setResources(prev => prev.map(res => res.id === id ? { ...res, status: 'approved' } : res));
-      addLog(`Request ${id} approved`);
+      addLog(`Request ${id} approved for user ${userId}`);
+      addNotification(`Request ${id} approved`);
     } catch (error) {
-      addLog(`Approve error: ${error.message}`);
+      console.error('AdminDashboard.js - Error approving request:', error.code, error.message);
+      setError('Failed to approve request: ' + error.message);
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async (id, userId, resourceId) => {
     try {
-      await remove(dbRef(db, `requests/${id}`));
-      setPendingRequests(prev => prev.filter(req => req.id !== id));
-      addLog(`Request ${id} rejected`);
+      console.log('AdminDashboard.js - Rejecting request:', { id, userId, resourceId });
+      await update(dbRef(db, `requests/${id}`), { status: 'rejected' });
+      addLog(`Request ${id} rejected for user ${userId}`);
+      addNotification(`Request ${id} rejected`);
     } catch (error) {
-      addLog(`Reject error: ${error.message}`);
+      console.error('AdminDashboard.js - Error rejecting request:', error.code, error.message);
+      setError('Failed to reject request: ' + error.message);
     }
   };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
+    setContentUrl('');
     if (selectedFile) {
       addLog(`File selected: ${selectedFile.name} (Size: ${selectedFile.size} bytes)`);
     } else {
-      addLog('No file selected or file input cleared');
+      addLog('No file selected');
     }
+  };
+
+  const handleUrlChange = (e) => {
+    setContentUrl(e.target.value);
+    setFile(null);
+    addLog(`URL entered: ${e.target.value}`);
   };
 
   const handleAddResource = async () => {
     addLog('Add Resource button clicked');
     if (!resourceName) {
       addLog('Error: Resource name is required');
-      alert('Please enter a resource name');
+      setError('Please enter a resource name');
       return;
     }
 
     try {
-      let fileUrl = '';
-      if (file) {
-        addLog(`Uploading file to Firebase Storage: ${file.name}`);
-        const fileRef = storageRef(storage, `resources/${file.name}`);
-        await uploadBytes(fileRef, file);
-        fileUrl = await getDownloadURL(fileRef);
-        addLog(`File uploaded successfully, URL: ${fileUrl}`);
+      let content = '';
+      if (resourceType === 'pdf' && file) {
+        const reader = new FileReader();
+        content = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        addLog(`PDF Base64 generated for ${file.name}`);
+      } else if ((resourceType === 'training' || resourceType === 'course') && contentUrl) {
+        content = contentUrl;
+        addLog(`URL set: ${contentUrl}`);
       } else {
-        addLog('No file to upload');
+        setError('Please provide a file for PDF or a URL for training/course');
+        return;
       }
 
       const newResource = {
@@ -130,35 +175,102 @@ const AdminDashboard = ({ user }) => {
         description: resourceDetails,
         type: resourceType,
         status: 'available',
-        fileUrl: fileUrl || '',
+        content,
         createdAt: new Date().toISOString(),
       };
-      addLog(`Adding resource to Realtime Database: ${JSON.stringify(newResource)}`);
       const resourcesRef = dbRef(db, 'resources');
       const newResourceRef = await push(resourcesRef, newResource);
       addLog(`Resource added with ID: ${newResourceRef.key}`);
+      addNotification(`Resource "${resourceName}" added`);
 
-      setResources(prev => [...prev, { id: newResourceRef.key, ...newResource }]);
       setResourceName('');
       setResourceDetails('');
       setFile(null);
-      fileInputRef.current.value = null;
-      addLog('Form reset');
-      alert('Resource added successfully!');
+      setContentUrl('');
     } catch (error) {
-      addLog(`Error adding resource: ${error.message}`);
-      alert(`Failed to add resource: ${error.message}`);
+      console.error('AdminDashboard.js - Error adding resource:', error.code, error.message);
+      setError('Failed to add resource: ' + error.message);
+    }
+  };
+
+  const handleEditResource = (resource) => {
+    setEditResourceId(resource.id);
+    setResourceName(resource.title);
+    setResourceDetails(resource.description);
+    setResourceType(resource.type);
+    setContentUrl(resource.type !== 'pdf' ? resource.content : '');
+    setFile(null);
+    addLog(`Editing resource ${resource.id}`);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!resourceName) {
+      setError('Resource name is required');
+      return;
+    }
+
+    try {
+      let content = resources.find(r => r.id === editResourceId).content;
+      if (resourceType === 'pdf' && file) {
+        const reader = new FileReader();
+        content = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        addLog(`New PDF Base64 generated for ${file.name}`);
+      } else if ((resourceType === 'training' || resourceType === 'course') && contentUrl) {
+        content = contentUrl;
+        addLog(`New URL set: ${contentUrl}`);
+      }
+
+      const updatedResource = {
+        title: resourceName,
+        description: resourceDetails,
+        type: resourceType,
+        status: 'available',
+        content,
+        createdAt: resources.find(r => r.id === editResourceId).createdAt,
+      };
+      await update(dbRef(db, `resources/${editResourceId}`), updatedResource);
+      addLog(`Resource ${editResourceId} updated`);
+      addNotification(`Resource "${resourceName}" updated`);
+
+      setEditResourceId(null);
+      setResourceName('');
+      setResourceDetails('');
+      setFile(null);
+      setContentUrl('');
+    } catch (error) {
+      console.error('AdminDashboard.js - Error editing resource:', error.code, error.message);
+      setError('Failed to edit resource: ' + error.message);
+    }
+  };
+
+  const handleDeleteResource = async (id) => {
+    try {
+      await remove(dbRef(db, `resources/${id}`));
+      addLog(`Resource ${id} deleted`);
+      addNotification(`Resource ${id} deleted`);
+    } catch (error) {
+      console.error('AdminDashboard.js - Error deleting resource:', error.code, error.message);
+      setError('Failed to delete resource: ' + error.message);
     }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/');
-      addLog('Logged out successfully');
+      console.log('AdminDashboard.js - Logout successful');
+      navigate('/auth');
     } catch (error) {
       addLog(`Logout error: ${error.message}`);
+      setError('Logout failed: ' + error.message);
     }
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications(prev => !prev);
   };
 
   const filteredResources = resources.filter(resource =>
@@ -167,26 +279,65 @@ const AdminDashboard = ({ user }) => {
 
   const barData = {
     labels: resources.map(r => r.title),
-    datasets: [{ label: 'Requests', data: resources.map(() => Math.floor(Math.random() * 20)), backgroundColor: 'rgba(75, 192, 192, 0.2)' }],
+    datasets: [{
+      label: 'Requests',
+      data: resources.map(r => allRequests.filter(req => req.resourceId === r.id).length),
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+    }],
   };
 
   const pieData = {
-    labels: ['Pending', 'Approved'],
-    datasets: [{ data: [pendingRequests.length, resources.length - pendingRequests.length], backgroundColor: ['#FF6384', '#36A2EB'] }],
+    labels: ['Pending', 'Approved', 'Rejected'],
+    datasets: [{
+      data: [
+        allRequests.filter(req => req.status === 'pending').length,
+        allRequests.filter(req => req.status === 'approved').length,
+        allRequests.filter(req => req.status === 'rejected').length,
+      ],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+    }],
   };
 
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div style={{ textAlign: 'center', padding: '20px', fontSize: '1.5rem' }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  console.log('AdminDashboard.js - Rendering with resources:', resources.length, 'allRequests:', allRequests.length);
+
   return (
-
     <div className="dashboard-container">
-
       <header className="header">
-        <img src={logo} className="logo" alt="CAPACITI logo"/>
+        <img src={logo} className="logo" alt="CAPACITI logo" />
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-info">
           <h2>Welcome, {user.name}!</h2>
           <p>Role: {user.role}</p>
         </div>
         <div className="user-controls">
+          <button className="notification-button" onClick={toggleNotifications}>
+            <Bell size={24} />
+            {notifications.length > 0 && (
+              <span className="notification-count">{notifications.length}</span>
+            )}
+          </button>
+          {showNotifications && (
+            <div className="notification-dropdown">
+              <h3>Notifications</h3>
+              {notifications.length > 0 ? (
+                notifications.map(notif => (
+                  <div key={notif.id} className="notification-item">{notif.message} - {notif.timestamp}</div>
+                ))
+              ) : (
+                <div className="notification-item">No notifications</div>
+              )}
+            </div>
+          )}
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
@@ -195,17 +346,14 @@ const AdminDashboard = ({ user }) => {
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/admin-dashboard">Resources</Link></li>
-<<<<<<< HEAD
-          
           <li><Link to="/" onClick={handleLogout}>Logout</Link></li>
-=======
-          <li><Link to="/profile">Profile</Link></li>
->>>>>>> 3e37f0b4354019a78dd0027eb9239cae5429a323
         </ul>
       </nav>
 
+      {error && <div className="error">{error}</div>}
+
       <div className="admin-controls">
-        <h2>Manage Resources</h2>
+        <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
         <input
           type="text"
           placeholder="Resource Name"
@@ -223,24 +371,38 @@ const AdminDashboard = ({ user }) => {
           <option value="training">Training</option>
           <option value="course">Course</option>
         </select>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".pdf,.doc,.docx"
-        />
-        <button onClick={handleAddResource}>Add Resource</button>
+        {resourceType === 'pdf' ? (
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept=".pdf"
+          />
+        ) : (
+          <input
+            type="text"
+            placeholder="Enter URL"
+            value={contentUrl}
+            onChange={handleUrlChange}
+          />
+        )}
+        <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
+          {editResourceId ? 'Save Changes' : 'Add Resource'}
+        </button>
+        {editResourceId && (
+          <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>
+        )}
       </div>
 
       <div className="resources-list">
-        <h2>Resources</h2>
+        <h2>Resources ({resources.length} total)</h2>
         <table>
           <thead>
             <tr>
               <th>Title</th>
               <th>Type</th>
               <th>Status</th>
-              <th>File</th>
+              <th>Content</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -250,11 +412,15 @@ const AdminDashboard = ({ user }) => {
                 <td>{resource.type}</td>
                 <td>{resource.status}</td>
                 <td>
-                  {resource.fileUrl ? (
-                    <a href={resource.fileUrl} download={resource.title} target="_blank" rel="noopener noreferrer">
-                      Download
-                    </a>
-                  ) : 'No file'}
+                  {resource.type === 'pdf' ? (
+                    <a href={resource.content} download={`${resource.title}.pdf`}>Download</a>
+                  ) : (
+                    <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
+                  )}
+                </td>
+                <td>
+                  <button onClick={() => handleEditResource(resource)}>Edit</button>
+                  <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -283,7 +449,7 @@ const AdminDashboard = ({ user }) => {
       </div>
 
       <div className="pending-requests">
-        <h2>Pending Requests</h2>
+        <h2>All Requests ({allRequests.length})</h2>
         <table>
           <thead>
             <tr>
@@ -294,14 +460,20 @@ const AdminDashboard = ({ user }) => {
             </tr>
           </thead>
           <tbody>
-            {pendingRequests.map(req => (
+            {allRequests.map(req => (
               <tr key={req.id}>
                 <td>{req.userId}</td>
                 <td>{req.resourceId}</td>
                 <td>{req.status}</td>
                 <td>
-                  <button onClick={() => handleApprove(req.id)}>Approve</button>
-                  <button onClick={() => handleReject(req.id)}>Reject</button>
+                  {req.status === 'pending' ? (
+                    <>
+                      <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
+                      <button onClick={() => handleReject(req.id, req.userId, req.resourceId)}>Reject</button>
+                    </>
+                  ) : (
+                    req.status // Display status if not pending
+                  )}
                 </td>
               </tr>
             ))}
