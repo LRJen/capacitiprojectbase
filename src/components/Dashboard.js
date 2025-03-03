@@ -4,7 +4,7 @@ import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell, Search, User, X } from 'lucide-react';
 import './Dashboard.css';
-import logo from '../assets/Logo.jpg';
+import logo from '../assets/logo.png';
 import { ref as dbRef, onValue, push, remove, set } from 'firebase/database';
 
 const Dashboard = ({ user }) => {
@@ -291,10 +291,6 @@ const Dashboard = ({ user }) => {
       <header className="header">
         <img src={logo} className="logo" alt="CAPACITI logo" />
         <h1 className="title">Resource Hub Dashboard</h1>
-        <div className="user-info">
-          <h2>Welcome, {user.name}!</h2>
-          <p>Role: {user.role}</p>
-        </div>
         <div className="user-controls">
           <button className="notification-button" onClick={toggleNotifications}>
             <Bell size={24} />
@@ -330,19 +326,12 @@ const Dashboard = ({ user }) => {
             </div>
           )}
           <button className="user-button" onClick={handleProfileClick}>
-            <User size={24} /> {user.name}
+            <User size={24} /> <p>Username: {user.name}</p>
           </button>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
-
-      <nav className="navbar">
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/dashboard">Resources</Link></li>
-        </ul>
-      </nav>
-
+      
       <div className="search-container">
         <Search className="search-icon" size={20} />
         <input

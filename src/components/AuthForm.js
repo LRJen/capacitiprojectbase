@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AuthForm.css';
-import logoName from '../assets/nameLogo.jpg';
+import logo from '../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { ref as dbRef, set, get } from 'firebase/database';
@@ -320,7 +320,7 @@ const AuthForm = () => {
       )}
 
       <footer className="auth-footer">
-        <img src={logoName} className="landing-logo" alt="CAPACITI logo" />
+        <img src={logo} className="landing-logo" alt="logo" />
       </footer>
     </div>
   );

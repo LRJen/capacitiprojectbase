@@ -8,23 +8,25 @@
   padding: 20px;
   background: #f8f9fa;
   text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .landing-logo {
-  width: 400px;
+  width: 100px;
+  margin: 30px;
 }
 
 .landing-title {
   font-size: 3rem;
   font-weight: bolder;
   font-weight: 600;
-  color: #1D2848;
+  color: #0E3C67;
   margin-bottom: 15px;
 }
 
 .landing-description {
   font-size: 1.25rem;
-  color: #666;
+  color: #0E3C67;
   max-width: 600px;
   margin-bottom: 30px;
 }
@@ -32,7 +34,7 @@
 .get-started-button {
   padding: 12px 24px;
   border: none;
-  background: #F3564F;
+  background: #70BDF4;
   color: white;
   border-radius: 5px;
   font-size: 1.1rem;
@@ -41,7 +43,7 @@
 }
 
 .get-started-button:hover {
-  background: #1e90ff;
+  background: #3472AB;
 }
 
 @media (max-width: 768px) {
