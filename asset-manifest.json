@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/capacitiprojectbase/static/css/main.53747cb6.css",
+    "main.js": "/capacitiprojectbase/static/js/main.57d7e786.js",
+    "static/js/453.ed3810f9.chunk.js": "/capacitiprojectbase/static/js/453.ed3810f9.chunk.js",
+    "static/media/logo.png": "/capacitiprojectbase/static/media/logo.10dfb332f4c9af5df5e9.png",
+    "index.html": "/capacitiprojectbase/index.html",
+    "main.53747cb6.css.map": "/capacitiprojectbase/static/css/main.53747cb6.css.map",
+    "main.57d7e786.js.map": "/capacitiprojectbase/static/js/main.57d7e786.js.map",
+    "453.ed3810f9.chunk.js.map": "/capacitiprojectbase/static/js/453.ed3810f9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.53747cb6.css",
+    "static/js/main.57d7e786.js"
+  ]
+}
