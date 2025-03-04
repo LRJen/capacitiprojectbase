@@ -169,13 +169,15 @@ const AuthForm = () => {
           await set(dbRef(db, `userDownloads/${user.uid}`), {});
           console.log('AuthForm.js - Login - No data found, set default user role and downloads for UID:', user.uid);
           navigate('/dashboard');
+          resetForm();
         } else {
           const role = userData.role || 'user';
           console.log('AuthForm.js - Login - Role from DB:', role);
           navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
+          resetForm();
         }
       }
-      resetForm();
+      //resetForm();
     } catch (error) {
       console.error('AuthForm.js - Authentication error:', error.code, error.message);
       if (error.code === 'auth/email-already-in-use') {
@@ -228,7 +230,7 @@ const AuthForm = () => {
             {isSignUp && (
               <input
                 type="text"
-                placeholder="Username"
+                placeholder="Enter your user name...."
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -236,15 +238,15 @@ const AuthForm = () => {
             )}
             <input
               type="email"
-              placeholder="Email"
-              value={email}
+              placeholder="Enter your email...."
+             value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <input
               type="password"
               placeholder="Password (8 chars: 5 letters, 2 digits, 1 special)"
-              value={password}
+             value={password}
               onChange={handlePasswordChange}
               required
             />

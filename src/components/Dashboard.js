@@ -156,6 +156,10 @@ const Dashboard = ({ user }) => {
       };
       const newRequestRef = await push(dbRef(db, 'requests'), request);
       console.log('Dashboard.js - Resource requested:', resourceId);
+      
+      //X code.. to be deleted
+    
+      ////////////////////////////
       setNotifications(prev => [
         ...prev,
         { 
@@ -168,6 +172,8 @@ const Dashboard = ({ user }) => {
         },
       ]);
       setUnreadCount(prev => prev + 1);
+
+
     } catch (error) {
       console.error('Dashboard.js - Error requesting resource:', error.code, error.message);
       setError('Failed to request resource: ' + error.message);
@@ -289,7 +295,9 @@ const Dashboard = ({ user }) => {
   return (
     <div className="dashboard-container">
       <header className="header">
+        <a href='LandingPage.js' className='logo'>
         <img src={logo} className="logo" alt="CAPACITI logo" />
+        </a>
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-controls">
           <button className="notification-button" onClick={toggleNotifications}>

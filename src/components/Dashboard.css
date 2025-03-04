@@ -41,6 +41,10 @@
   transform: scale(1.1);
 }
 
+.logo-link{
+  /*border: 1px solid green; */
+}
+
 .title {
   font-size: 2rem;
   font-weight: 700;
@@ -248,7 +252,7 @@
   transition: var(--transition);
 }
 
-.action-button:disabled {
+/*.action-button:disabled {
   background: #b0b0b0;
   cursor: not-allowed;
 }
@@ -256,13 +260,17 @@
 .action-button:hover:not(:disabled) {
   background:var(--text-color);
 }
+  */
+.logo{
 
+}
 .cancel-button {
   background: #6B7280;
 }
 
-.cancel-button:hover:not(:disabled) {
+.cancel-button:hover{
   background: darken(#6B7280, 10%);
+  border: 1px solid red;
 }
 
 /* Notification Bell Enhancements */

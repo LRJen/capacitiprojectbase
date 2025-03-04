@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
+import LandbotChat from './components/Landbot';
 
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
@@ -78,7 +79,9 @@ const App = () => {
         path="/profile"
         element={user ? <Profile user={user} /> : <LandingPageWrapper />}
       />
+      
     </Routes>
+    
   );
 };
 
@@ -87,5 +90,6 @@ const AppWrapper = () => (
     <App />
   </Router>
 );
+
 
 export default AppWrapper;
