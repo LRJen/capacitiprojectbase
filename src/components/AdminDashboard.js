@@ -313,7 +313,13 @@ const AdminDashboard = ({ user }) => {
   return (
     <div className="dashboard-container">
       <header className="header">
+
+
+      <a href='LandingPage.js' className='logo-link'>
         <img src={logo} className="logo" alt="CAPACITI logo" />
+        </a>
+
+
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-info">
           <h2>Welcome, {user.name}!</h2>
