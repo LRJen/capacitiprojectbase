@@ -144,3 +144,35 @@
     font-size: 0.9rem;
   }
 }
+
+
+  .feature-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 80%;
+    max-width: 300px;
+  }
+
+  .get-started-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+
+@media (max-width: 480px) {
+  .landing-logo {
+    width: 80px;
+    margin: 20px;
+  }
+
+  .landing-title {
+    font-size: 1.5rem;
+  }
+
+  .landing-description {
+    font-size: 0.9rem;
+  }
+}

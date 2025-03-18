@@ -217,7 +217,7 @@ const AuthForm = () => {
 
   return (
     <div className="auth-container">
-      <button onClick={() => navigate('/welcome')} className="back-button">Back</button>
+      {/* <button onClick={() => navigate('/welcome')} className="back-button">Back</button>  */}
       <h1 className="auth-title">RESOURCE HUB</h1>
       
       {!showForgotPassword ? (
