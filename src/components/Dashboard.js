@@ -18,6 +18,9 @@ const Dashboard = ({ user }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
+  // Added: State for modal visibility and content
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
 
   useEffect(() => {
     if (!user || !user.uid) {
@@ -27,7 +30,6 @@ const Dashboard = ({ user }) => {
     console.log('Dashboard.js - useEffect triggered for UID:', user.uid);
     setLoading(true);
 
-    // Fetch resources (real-time listener)
     const resourcesRef = dbRef(db, 'resources');
     const unsubscribeResources = onValue(resourcesRef, (snapshot) => {
       const data = snapshot.val();
@@ -51,7 +53,6 @@ const Dashboard = ({ user }) => {
       setLoading(false);
     });
 
-    // Fetch user's requests (real-time listener)
     const requestsRef = dbRef(db, 'requests');
     const unsubscribeRequests = onValue(requestsRef, (snapshot) => {
       const data = snapshot.val();
@@ -72,13 +73,12 @@ const Dashboard = ({ user }) => {
                 message: `${message} (${new Date(value.timestamp).toLocaleTimeString()})`,
                 status: value.status,
                 dismissible: true,
-                unread: !notifications.some(n => n.id === id && n.status === value.status), // Unread if new or status changed
+                unread: !notifications.some(n => n.id === id && n.status === value.status),
               };
             })
         : [];
       console.log('Dashboard.js - Processed user requests:', requestList);
 
-      // Update notifications with status changes
       requestList.forEach(req => {
         const prevReq = notifications.find(n => n.id === req.id);
         if (!prevReq || prevReq.status !== req.status) {
@@ -87,7 +87,7 @@ const Dashboard = ({ user }) => {
             console.log('Dashboard.js - Updated notifications with new/change:', updated);
             return updated;
           });
-          setUnreadCount(prev => prev + 1); // Increment for every new or changed request
+          setUnreadCount(prev => prev + 1);
         }
       });
       setNotifications(requestList);
@@ -99,7 +99,6 @@ const Dashboard = ({ user }) => {
       setLoading(false);
     });
 
-    // Fetch user's downloads (real-time listener)
     const downloadsRef = dbRef(db, `userDownloads/${user.uid}`);
     const unsubscribeDownloads = onValue(downloadsRef, (snapshot) => {
       const data = snapshot.val();
@@ -113,7 +112,6 @@ const Dashboard = ({ user }) => {
       setLoading(false);
     });
 
-    // Check if all data is loaded
     const checkLoadingComplete = (res, notifs, downs) => {
       if (res.length > -1 && notifs.length > -1 && downs.length > -1) {
         console.log('Dashboard.js - All data loaded:', { resources: res.length, notifications: notifs.length, downloads: downs.length });
@@ -157,9 +155,6 @@ const Dashboard = ({ user }) => {
       const newRequestRef = await push(dbRef(db, 'requests'), request);
       console.log('Dashboard.js - Resource requested:', resourceId);
       
-      //X code.. to be deleted
-    
-      ////////////////////////////
       setNotifications(prev => [
         ...prev,
         { 
@@ -172,8 +167,6 @@ const Dashboard = ({ user }) => {
         },
       ]);
       setUnreadCount(prev => prev + 1);
-
-
     } catch (error) {
       console.error('Dashboard.js - Error requesting resource:', error.code, error.message);
       setError('Failed to request resource: ' + error.message);
@@ -201,34 +194,50 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  // Modified: Updated to show modal for My Library, download/access for approved resources
   const handleDownloadOrAccess = async (resource) => {
     try {
-      if (resource.type === 'pdf') {
-        const link = document.createElement('a');
-        link.href = resource.content;
-        link.download = `${resource.title}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        console.log('Dashboard.js - PDF downloaded:', resource.title);
+      const isInLibrary = downloads.some(download => download.id === resource.id);
+      if (isInLibrary) {
+        // For My Library: Show modal with resource content
+        setModalContent(resource);
+        setShowModal(true);
+        console.log('Dashboard.js - Resource opened in modal from My Library:', resource.title);
       } else {
-        window.open(resource.content, '_blank');
-        console.log('Dashboard.js - Link/Course accessed:', resource.content);
+        // For approved resources not yet downloaded: Handle download or access
+        if (resource.type === 'pdf') {
+          const link = document.createElement('a');
+          link.href = resource.content;
+          link.download = `${resource.title}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          console.log('Dashboard.js - PDF downloaded:', resource.title);
+        } else {
+          window.open(resource.content, '_blank');
+          console.log('Dashboard.js - Link/Course accessed:', resource.content);
+        }
+        const downloadData = {
+          title: resource.title,
+          type: resource.type,
+          content: resource.content,
+          downloadedAt: new Date().toISOString(),
+        };
+        await set(dbRef(db, `userDownloads/${user.uid}/${resource.id}`), downloadData);
+        console.log('Dashboard.js - Resource added to downloads:', resource.id);
+        setNotifications(prev => prev.filter(notif => notif.resourceId !== resource.id));
       }
-      const downloadData = {
-        title: resource.title,
-        type: resource.type,
-        content: resource.content,
-        downloadedAt: new Date().toISOString(),
-      };
-      await set(dbRef(db, `userDownloads/${user.uid}/${resource.id}`), downloadData);
-      console.log('Dashboard.js - Resource added to downloads:', resource.id);
-      // Remove from notifications once downloaded
-      setNotifications(prev => prev.filter(notif => notif.resourceId !== resource.id));
     } catch (error) {
-      console.error('Dashboard.js - Error downloading/accessing resource:', error.code, error.message);
-      setError('Failed to download/access resource: ' + error.message);
+      console.error('Dashboard.js - Error handling resource:', error.code, error.message);
+      setError('Failed to handle resource: ' + error.message);
     }
+  };
+
+  // Added: Function to close the modal
+  const closeModal = () => {
+    setShowModal(false);
+    setModalContent(null);
+    console.log('Dashboard.js - Modal closed');
   };
 
   const dismissNotification = (notifId) => {
@@ -296,7 +305,7 @@ const Dashboard = ({ user }) => {
     <div className="dashboard-container">
       <header className="header">
         <a href='LandingPage.js' className='logo'>
-        <img src={logo} className="logo" alt="CAPACITI logo" />
+          <img src={logo} className="logo" alt="CAPACITI logo" />
         </a>
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-controls">
@@ -411,11 +420,12 @@ const Dashboard = ({ user }) => {
                   {activeTab !== 'available' && (
                     <td>
                       {(approvedRequest || activeTab === 'myLibrary') ? (
+                        // Modified: Button text set to "View" for My Library, kept "Download"/"Access" for approved resources
                         <button
                           className="action-button"
                           onClick={() => handleDownloadOrAccess(resource)}
                         >
-                          {resource.type === 'pdf' ? 'Download' : 'Access'}
+                          {activeTab === 'myLibrary' ? 'View' : (resource.type === 'pdf' ? 'Download' : 'Access')}
                         </button>
                       ) : '-'}
                     </td>
@@ -446,6 +456,65 @@ const Dashboard = ({ user }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Added: Modal for viewing documents */}
+      {showModal && modalContent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '80%',
+            maxWidth: '800px',
+            height: '80%',
+            position: 'relative',
+            overflow: 'auto',
+          }}>
+            <button
+              onClick={closeModal}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: '#64ffda',
+                color: '#282c34',
+                border: 'none',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+            <h3>{modalContent.title}</h3>
+            {/* Display content based on type */}
+            {modalContent.type === 'pdf' ? (
+              <iframe
+                src={modalContent.content}
+                width="100%"
+                height="90%"
+                title={modalContent.title}
+                style={{ border: 'none' }}
+              />
+            ) : (
+              <a href={modalContent.content} target="_blank" rel="noopener noreferrer">
+                Open Link
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
