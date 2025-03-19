@@ -568,3 +568,100 @@
     height: 300px; /* Further adjusted for very small screens */
   }
 }
+/*
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.page-button {
+  background: #64ffda;
+  color: #282c34;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.page-button.active {
+  background: #3ec6b7;
+  font-weight: bold;
+}
+
+.page-button:hover:not(.active) {
+  background: #50e0c0;
+}
+
+.pagination-controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.load-more-button, .load-less-button {
+  background: #64ffda;
+  color: #282c34;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.load-less-button {
+  background: #ff6b6b; /* Red to contrast "Load More"
+}
+
+.load-more-button:hover {
+  background: #50e0c0;
+}
+
+.load-less-button:hover {
+  background: #e65c5c;
+} */
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #6b48ff, #00ddeb);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-button {
+  background: #ffffff;
+  color: #333;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.page-button:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.page-button.active {
+  background: #333;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.page-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  color: #ffffff;
+  font-size: 14px;
+  padding: 0 8px;
+}
