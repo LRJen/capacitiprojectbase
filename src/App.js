@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import LandingPage from './components/LandingPage';
-import WelcomePage from './components/WelcomePage';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
@@ -68,7 +67,6 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPageWrapper />} />
-      <Route path="/welcome" element={<WelcomePage />} />
       <Route path="/auth" element={<AuthForm />} />
       <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <LandingPageWrapper />} />
       <Route

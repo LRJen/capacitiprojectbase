@@ -26,6 +26,10 @@ const AdminDashboard = ({ user }) => {
   const [editResourceId, setEditResourceId] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('available');
+  // Added: State for modal visibility and content
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
   const navigate = useNavigate();
 
   // Pagination states
@@ -360,6 +364,17 @@ const AdminDashboard = ({ user }) => {
     }],
   };
 
+  const openTab = (event, tabId) => {
+    let tabs = document.querySelectorAll(".tab");
+    let contents = document.querySelectorAll(".tab-content");
+    
+    tabs.forEach(tab => tab.classList.remove("active"));
+    contents.forEach(content => content.classList.remove("active"));
+    
+    event.currentTarget.classList.add("active");
+    document.getElementById(tabId).classList.add("active");
+  };
+
   const checkLoadingComplete = (res, reqs) => {
     if (res.length > -1 && reqs.length > -1) setLoading(false);
   };
@@ -373,7 +388,6 @@ const AdminDashboard = ({ user }) => {
       <header className="header">
         <a href='LandingPage.js' className='logo-link'><img src={logo} className="logo" alt="CAPACITI logo" /></a>
         <h1 className="title">Resource Hub Dashboard</h1>
-        <div className="user-info"><h2>Welcome, {user.name}!</h2><p>Role: {user.role}</p></div>
         <div className="user-controls">
           <button className="notification-button" onClick={toggleNotifications}>
             <Bell size={24} />
@@ -387,6 +401,7 @@ const AdminDashboard = ({ user }) => {
               )) : <div className="notification-item">No notifications</div>}
             </div>
           )}
+          <p>Admin Name: {user.name}</p>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
@@ -397,67 +412,81 @@ const AdminDashboard = ({ user }) => {
 
       {error && <div className="error">{error}</div>}
 
-      <div className="admin-controls">
-        <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
-        <input type="text" placeholder="Resource Name" value={resourceName} onChange={(e) => setResourceName(e.target.value)} />
-        <input type="text" placeholder="Description" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} />
-        <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-          <option value="pdf">PDF</option><option value="training">Training</option><option value="course">Course</option>
-        </select>
-        {resourceType === 'pdf' ? (
-          <input type="file" onChange={handleFileChange} accept=".pdf" />
-        ) : (
-          <input type="text" placeholder="Enter URL" value={contentUrl} onChange={handleUrlChange} />
-        )}
-        <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
-          {editResourceId ? 'Save Changes' : 'Add Resource'}
-        </button>
-        {editResourceId && <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>}
-      </div>
-
-      <div className="resources-list">
-        <h2>Resources ({totalResources} total)</h2>
-        <table>
-          <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Content</th><th>Actions</th></tr></thead>
-          <tbody>
-            {filteredResources.map(resource => (
-              <tr key={resource.id}>
-                <td>{resource.title}</td>
-                <td>{resource.type}</td>
-                <td>{resource.status}</td>
-                <td>{resource.type === 'pdf' ? (
-                  <a href={resource.content} download={`${resource.title}.pdf`}>Download</a>
-                ) : (
-                  <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
-                )}</td>
-                <td>
-                  <button onClick={() => handleEditResource(resource)}>Edit</button>
-                  <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="pagination-controls">
-          {displayedResources.length < totalResources && (
-            <button className="load-more-button" onClick={loadMoreResources}>Load More</button>
-          )}
-          {displayedResources.length > pageSize && (
-            <button className="load-less-button" onClick={loadLessResources}>Show Less</button>
-          )}
+      <div className="tabs">
+        <div className={`tab ${activeTab === 'manage-resources' ? 'active' : ''}`} onClick={() => setActiveTab('manage-resources')}>
+          Manage Resource
+        </div>
+        <div className={`tab ${activeTab === 'pending-requests' ? 'active' : ''}`} onClick={() => setActiveTab('pending-requests')}>
+          Pending Requests
+        </div>
+        <div className={`tab ${activeTab === 'analytics-section' ? 'active' : ''}`} onClick={() => setActiveTab('analytics-section')}>
+          Analytics Section
         </div>
       </div>
 
-      <div className="log-table">
-        <h2>Action Logs</h2>
-        <table>
-          <thead><tr><th>Time</th><th>Message</th></tr></thead>
-          <tbody>{logs.map((log, index) => <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>)}</tbody>
-        </table>
+      <div className={`tab-content ${activeTab === 'manage-resources' ? 'active' : ''}`}>
+        <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
+        <div className="admin-controls">
+          <input type="text" placeholder="Resource Name" value={resourceName} onChange={(e) => setResourceName(e.target.value)} />
+          <input type="text" placeholder="Description" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} />
+          <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+            <option value="pdf">PDF</option><option value="training">Training</option><option value="course">Course</option>
+          </select>
+          {resourceType === 'pdf' ? (
+            <input type="file" onChange={handleFileChange} accept=".pdf" />
+          ) : (
+            <input type="text" placeholder="Enter URL" value={contentUrl} onChange={handleUrlChange} />
+          )}
+          <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
+            {editResourceId ? 'Save Changes' : 'Add Resource'}
+          </button>
+          {editResourceId && <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>}
+        </div>
+
+        <div className="resources-list">
+          <h2>Resources ({totalResources} total)</h2>
+          <table>
+            <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Content</th><th>Actions</th></tr></thead>
+            <tbody>
+              {filteredResources.map(resource => (
+                <tr key={resource.id}>
+                  <td>{resource.title}</td>
+                  <td>{resource.type}</td>
+                  <td>{resource.status}</td>
+                  <td>{resource.type === 'pdf' ? (
+                    <a href={resource.content} download={`${resource.title}.pdf`}>Download</a>
+                  ) : (
+                    <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
+                  )}</td>
+                  <td>
+                    <button onClick={() => handleEditResource(resource)}>Edit</button>
+                    <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pagination-controls">
+            {displayedResources.length < totalResources && (
+              <button className="load-more-button" onClick={loadMoreResources}>Load More</button>
+            )}
+            {displayedResources.length > pageSize && (
+              <button className="load-less-button" onClick={loadLessResources}>Show Less</button>
+            )}
+          </div>
+        </div>
+
+        <div className="log-table">
+          <h2>Action Logs</h2>
+          <table>
+            <thead><tr><th>Time</th><th>Message</th></tr></thead>
+            <tbody>{logs.map((log, index) => <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>)}</tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="pending-requests">
-        <h2>All Requests ({totalRequests})</h2>
+      <div className={`tab-content ${activeTab === 'pending-requests' ? 'active' : ''}`}>
+      <h2>Pending Requests</h2>
         <table>
           <thead><tr><th>User ID</th><th>Resource ID</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
@@ -488,8 +517,8 @@ const AdminDashboard = ({ user }) => {
         </div>
       </div>
 
-      <div className="analytics-section">
-        <h2>Analytics</h2>
+      <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
+      <h2>Analytics</h2>
         <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
         <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
       </div>

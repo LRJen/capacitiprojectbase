@@ -156,15 +156,28 @@
 }
 
 /* Add to AuthForm.css */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
 .validation-feedback {
   margin-top: 5px;
   font-size: 0.8rem;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
 }
 
-.validation-feedback span {
+.dropdown:hover .validation-feedback {
   display: block;
 }
 

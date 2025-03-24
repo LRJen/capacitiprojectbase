@@ -250,23 +250,26 @@ const AuthForm = () => {
               onChange={handlePasswordChange}
               required
             />
-            <div className="validation-feedback">
-              <span className={passwordValidations.length ? 'valid' : 'invalid'}>
-                Exactly 8 characters: {passwordValidations.length ? '✓' : '✗'}
-              </span>
-              <span className={passwordValidations.letters ? 'valid' : 'invalid'}>
-                5+ letters: {passwordValidations.letters ? '✓' : '✗'}
-              </span>
-              <span className={passwordValidations.capital ? 'valid' : 'invalid'}>
-                1 capital: {passwordValidations.capital ? '✓' : '✗'}
-              </span>
-              <span className={passwordValidations.digits ? 'valid' : 'invalid'}>
-                2+ digits: {passwordValidations.digits ? '✓' : '✗'}
-              </span>
-              <span className={passwordValidations.special ? 'valid' : 'invalid'}>
-                1 special: {passwordValidations.special ? '✓' : '✗'}
-              </span>
-            </div>
+            <div class="dropdown">
+              <span>Password Constraints</span>
+                <div className="validation-feedback">
+                  <span className={passwordValidations.length ? 'valid' : 'invalid'}>
+                    Exactly 8 characters: {passwordValidations.length ? '✓' : '✗'}
+                  </span>
+                  <span className={passwordValidations.letters ? 'valid' : 'invalid'}>
+                    5+ letters: {passwordValidations.letters ? '✓' : '✗'}
+                  </span>
+                  <span className={passwordValidations.capital ? 'valid' : 'invalid'}>
+                    1 capital: {passwordValidations.capital ? '✓' : '✗'}
+                  </span>
+                  <span className={passwordValidations.digits ? 'valid' : 'invalid'}>
+                    2+ digits: {passwordValidations.digits ? '✓' : '✗'}
+                  </span>
+                  <span className={passwordValidations.special ? 'valid' : 'invalid'}>
+                    1 special: {passwordValidations.special ? '✓' : '✗'}
+                  </span>
+                </div>
+            </div>  
             {isAdmin && (
               <>
                 <input
@@ -275,16 +278,19 @@ const AuthForm = () => {
                   value={adminCode}
                   onChange={handleAdminCodeChange}
                 />
-                <div className="validation-feedback">
-                  <span className={adminCodeValidations.letters ? 'valid' : 'invalid'}>
-                    3 letters: {adminCodeValidations.letters ? '✓' : '✗'}
-                  </span>
-                  <span className={adminCodeValidations.digit ? 'valid' : 'invalid'}>
-                    1 digit: {adminCodeValidations.digit ? '✓' : '✗'}
-                  </span>
-                  <span className={adminCodeValidations.special ? 'valid' : 'invalid'}>
-                    1 special: {adminCodeValidations.special ? '✓' : '✗'}
-                  </span>
+                <div class="dropdown">
+                  <span>Admin Code Constraints</span>
+                    <div className="validation-feedback">
+                      <span className={adminCodeValidations.letters ? 'valid' : 'invalid'}>
+                        3 letters: {adminCodeValidations.letters ? '✓' : '✗'}
+                      </span>
+                      <span className={adminCodeValidations.digit ? 'valid' : 'invalid'}>
+                        1 digit: {adminCodeValidations.digit ? '✓' : '✗'}
+                      </span>
+                      <span className={adminCodeValidations.special ? 'valid' : 'invalid'}>
+                        1 special: {adminCodeValidations.special ? '✓' : '✗'}
+                      </span>
+                    </div>
                 </div>
               </>
             )}
