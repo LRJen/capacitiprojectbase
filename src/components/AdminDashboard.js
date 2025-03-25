@@ -8,6 +8,7 @@ import { auth, db } from '../firebase';
 import { ref as dbRef, onValue, push, update, remove, query, limitToFirst, orderByKey, startAfter } from 'firebase/database';
 import { signOut } from 'firebase/auth';
 import { Bell, User } from 'lucide-react';
+import { House } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -26,11 +27,8 @@ const AdminDashboard = ({ user }) => {
   const [editResourceId, setEditResourceId] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('available');
-  // Added: State for modal visibility and content
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('manage-resources');
 
   // Pagination states
   const pageSize = 5; // Increment/decrement by 5 items
@@ -364,15 +362,13 @@ const AdminDashboard = ({ user }) => {
     }],
   };
 
-  const openTab = (event, tabId) => {
-    let tabs = document.querySelectorAll(".tab");
-    let contents = document.querySelectorAll(".tab-content");
-    
-    tabs.forEach(tab => tab.classList.remove("active"));
-    contents.forEach(content => content.classList.remove("active"));
-    
-    event.currentTarget.classList.add("active");
-    document.getElementById(tabId).classList.add("active");
+  const openTab = (tabId) => {
+    setActiveTab(tabId);
+  };
+
+  const handleProfileClick = () => {
+    console.log('Dashboard.js - Navigating to profile');
+    navigate('/profile');
   };
 
   const checkLoadingComplete = (res, reqs) => {
@@ -389,6 +385,9 @@ const AdminDashboard = ({ user }) => {
         <a href='LandingPage.js' className='logo-link'><img src={logo} className="logo" alt="CAPACITI logo" /></a>
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-controls">
+          <button className="notification-button" onClick={() => navigate('/')}>
+            <House size={24} />
+          </button>
           <button className="notification-button" onClick={toggleNotifications}>
             <Bell size={24} />
             {notifications.length > 0 && <span className="notification-count">{notifications.length}</span>}
@@ -401,49 +400,49 @@ const AdminDashboard = ({ user }) => {
               )) : <div className="notification-item">No notifications</div>}
             </div>
           )}
-          <p>Admin Name: {user.name}</p>
+            <button className="user-button" onClick={handleProfileClick}>
+                        <User size={24} /> <p>Admin Name: {user.name}</p>
+                      </button>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
-
-      <nav className="navbar">
-        <ul><li><Link to="/">Home</Link></li><li><Link to="/admin-dashboard">Resources</Link></li><li><Link to="/" onClick={handleLogout}>Logout</Link></li></ul>
-      </nav>
-
+      
       {error && <div className="error">{error}</div>}
 
-      <div className="tabs">
-        <div className={`tab ${activeTab === 'manage-resources' ? 'active' : ''}`} onClick={() => setActiveTab('manage-resources')}>
+      <div className="tabs-a">
+        <div className={`tab-a ${activeTab === 'manage-resources' ? 'active' : ''}`} onClick={() => openTab('manage-resources')}>
           Manage Resource
         </div>
-        <div className={`tab ${activeTab === 'pending-requests' ? 'active' : ''}`} onClick={() => setActiveTab('pending-requests')}>
+        <div className={`tab-a ${activeTab === 'pending-requests' ? 'active' : ''}`} onClick={() => openTab('pending-requests')}>
           Pending Requests
         </div>
-        <div className={`tab ${activeTab === 'analytics-section' ? 'active' : ''}`} onClick={() => setActiveTab('analytics-section')}>
+        <div className={`tab-a ${activeTab === 'analytics-section' ? 'active' : ''}`} onClick={() => setActiveTab('analytics-section')}>
           Analytics Section
         </div>
       </div>
 
       <div className={`tab-content ${activeTab === 'manage-resources' ? 'active' : ''}`}>
-        <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
-        <div className="admin-controls">
-          <input type="text" placeholder="Resource Name" value={resourceName} onChange={(e) => setResourceName(e.target.value)} />
-          <input type="text" placeholder="Description" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} />
-          <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-            <option value="pdf">PDF</option><option value="training">Training</option><option value="course">Course</option>
-          </select>
-          {resourceType === 'pdf' ? (
-            <input type="file" onChange={handleFileChange} accept=".pdf" />
-          ) : (
-            <input type="text" placeholder="Enter URL" value={contentUrl} onChange={handleUrlChange} />
-          )}
-          <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
-            {editResourceId ? 'Save Changes' : 'Add Resource'}
-          </button>
-          {editResourceId && <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>}
+        <div className="manage-resources">  
+          <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
+          <div className="admin-controls">
+            <input type="text" placeholder="Resource Name" value={resourceName} onChange={(e) => setResourceName(e.target.value)} />
+            <input type="text" placeholder="Description" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} />
+            <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+              <option value="pdf">PDF</option><option value="training">Training</option><option value="course">Course</option>
+            </select>
+            {resourceType === 'pdf' ? (
+              <input type="file" onChange={handleFileChange} accept=".pdf" />
+            ) : (
+              <input type="text" placeholder="Enter URL" value={contentUrl} onChange={handleUrlChange} />
+            )}
+            <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
+              {editResourceId ? 'Save Changes' : 'Add Resource'}
+            </button>
+            {editResourceId && <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>}
+          </div>
         </div>
 
-        <div className="resources-list">
+        <div className="resources-table"> 
           <h2>Resources ({totalResources} total)</h2>
           <table>
             <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Content</th><th>Actions</th></tr></thead>
@@ -459,20 +458,24 @@ const AdminDashboard = ({ user }) => {
                     <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
                   )}</td>
                   <td>
-                    <button onClick={() => handleEditResource(resource)}>Edit</button>
-                    <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
+                    <div className="resource-actions">
+                      <button onClick={() => handleEditResource(resource)}>Edit</button>
+                      <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <div className="pagination-controls">
-            {displayedResources.length < totalResources && (
-              <button className="load-more-button" onClick={loadMoreResources}>Load More</button>
-            )}
-            {displayedResources.length > pageSize && (
-              <button className="load-less-button" onClick={loadLessResources}>Show Less</button>
-            )}
+            <div className="resource-actions">
+              {displayedResources.length < totalResources && (
+                <button className="load-more-button" onClick={loadMoreResources}>Load More</button>
+              )}
+              {displayedResources.length > pageSize && (
+                <button className="load-less-button" onClick={loadLessResources}>Show Less</button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -486,42 +489,50 @@ const AdminDashboard = ({ user }) => {
       </div>
 
       <div className={`tab-content ${activeTab === 'pending-requests' ? 'active' : ''}`}>
-      <h2>Pending Requests</h2>
-        <table>
-          <thead><tr><th>User ID</th><th>Resource ID</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            {displayedRequests.map(req => (
-              <tr key={req.id}>
-                <td>{req.userId}</td>
-                <td>{req.resourceId}</td>
-                <td>{req.status}</td>
-                <td>
-                  {req.status === 'pending' ? (
-                    <>
-                      <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
-                      <button onClick={() => handleReject(req.id, req.userId, req.resourceId)}>Reject</button>
-                    </>
-                  ) : req.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="pagination-controls">
-          {displayedRequests.length < totalRequests && (
-            <button className="load-more-button" onClick={loadMoreRequests}>Load More</button>
-          )}
-          {displayedRequests.length > pageSize && (
-            <button className="load-less-button" onClick={loadLessRequests}>Show Less</button>
-          )}
-        </div>
+        <div className= "pending-requests">
+          <h2>Pending Requests</h2>
+            <table>
+              <thead><tr><th>User</th><th>Resource</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                {displayedRequests.map(req => (
+                  <tr key={req.name}>
+                    <td>{req.userId}</td>
+                    <td>{req.resourceId}</td>
+                    <td>{req.status}</td>
+                    <td>
+                      <div className="resource-actions">
+                        {req.status === 'pending' ? (
+                          <>
+                            <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
+                            <button onClick={() => handleReject(req.id, req.userId, req.resourceId)}>Reject</button>
+                          </>
+                        ) : req.status}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="pagination-controls">
+              <div className="resource-actions">
+                {displayedRequests.length < totalRequests && (
+                  <button className="load-more-button" onClick={loadMoreRequests}>Load More</button>
+                )}
+                {displayedRequests.length > pageSize && (
+                  <button className="load-less-button" onClick={loadLessRequests}>Show Less</button>
+                )}
+              </div>
+            </div>
+          </div>
       </div>
 
       <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
-      <h2>Analytics</h2>
-        <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
-        <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
-      </div>
+        <div className= "pending-requests">
+          <h2>Analytics</h2>
+            <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
+            <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
+          </div>
+        </div>
     </div>
   );
 };

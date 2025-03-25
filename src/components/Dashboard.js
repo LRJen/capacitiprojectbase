@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell, Search, User, X } from 'lucide-react';
+import { House } from 'lucide-react';
 import './Dashboard.css';
 import logo from '../assets/logo.png';
 import { ref as dbRef, onValue, push, remove, set } from 'firebase/database';
@@ -309,6 +310,9 @@ const Dashboard = ({ user }) => {
         </a>
         <h1 className="title">Resource Hub Dashboard</h1>
         <div className="user-controls">
+          <button className="notification-button" onClick={() => navigate('/')}>
+            <House size={24} />
+          </button>
           <button className="notification-button" onClick={toggleNotifications}>
             <Bell size={24} />
             {unreadCount > 0 && (
@@ -487,8 +491,8 @@ const Dashboard = ({ user }) => {
                 position: 'absolute',
                 top: '10px',
                 right: '10px',
-                background: '#64ffda',
-                color: '#282c34',
+                background: '#70bdf4',
+                color: 'white',
                 border: 'none',
                 padding: '5px 10px',
                 borderRadius: '4px',
