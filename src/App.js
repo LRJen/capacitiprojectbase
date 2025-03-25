@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
-import LandbotChat from './components/Landbot';
+//import LandbotChat from './components/LandbotChat';
 
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
