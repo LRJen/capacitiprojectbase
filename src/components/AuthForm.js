@@ -7,8 +7,11 @@ import { ref as dbRef, set, get } from 'firebase/database';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  sendPasswordResetEmail 
+  sendPasswordResetEmail,
+  sendEmailVerification 
 } from 'firebase/auth';
+import Layout from './Layout';
+//import LandbotChat from './LandbotChat';
 
 const AuthForm = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -126,21 +129,26 @@ const AuthForm = () => {
         console.log('AuthForm.js - Signup - Assigned role:', role);
         console.log('AuthForm.js - Signup - Step 1: User created in Firebase Auth with UID:', user.uid);
 
-        // Step 2: Initialize user data in Realtime Database
+        // Step 2: Send email verification
+        await sendEmailVerification(user);
+        console.log('AuthForm.js - Signup - Step 2: Verification email sent to:', email);
+
+        // Step 3: Initialize user data in Realtime Database
         const userData = {
           name: username,
           role,
           email,
           createdAt: new Date().toISOString(),
+          emailVerified: false, // Optional: Store verification status
         };
         await set(dbRef(db, `users/${user.uid}`), userData);
-        console.log('AuthForm.js - Signup - Step 2: User data initialized in users/', user.uid, ':', userData);
+        console.log('AuthForm.js - Signup - Step 3: User data initialized in users/', user.uid, ':', userData);
 
-        // Step 3: Initialize userDownloads for the user (empty)
+        // Step 4: Initialize userDownloads for the user (empty)
         await set(dbRef(db, `userDownloads/${user.uid}`), {});
-        console.log('AuthForm.js - Signup - Step 3: userDownloads/', user.uid, ' initialized as empty');
+        console.log('AuthForm.js - Signup - Step 4: userDownloads/', user.uid, ' initialized as empty');
 
-        // Verify data was saved
+        // Step 5: Verify data was saved
         const userSnapshot = await get(dbRef(db, `users/${user.uid}`));
         const savedData = userSnapshot.val();
         console.log('AuthForm.js - Signup - Verified saved data:', savedData);
@@ -149,10 +157,21 @@ const AuthForm = () => {
         const savedDownloads = downloadsSnapshot.val();
         console.log('AuthForm.js - Signup - Verified userDownloads:', savedDownloads);
 
-        navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
+        // Inform user to verify email and sign out
+        alert('Registration successful! Please check your email to verify your account before logging in.');
+        await auth.signOut(); // Sign out after registration to enforce verification
+        resetForm();
       } else {
+        // Login flow
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+
+        // Check if email is verified
+        if (!user.emailVerified) {
+          await auth.signOut(); // Sign out if not verified
+          alert('Please verify your email before logging in. Check your inbox for the verification link.');
+          return;
+        }
 
         const userSnapshot = await get(dbRef(db, `users/${user.uid}`));
         const userData = userSnapshot.val();
@@ -165,19 +184,23 @@ const AuthForm = () => {
             role,
             email,
             createdAt: new Date().toISOString(),
+            emailVerified: true, // Set to true since they’ve logged in
           });
           await set(dbRef(db, `userDownloads/${user.uid}`), {});
           console.log('AuthForm.js - Login - No data found, set default user role and downloads for UID:', user.uid);
           navigate('/dashboard');
-          resetForm();
         } else {
           const role = userData.role || 'user';
           console.log('AuthForm.js - Login - Role from DB:', role);
+          // Optionally update emailVerified in DB
+          if (!userData.emailVerified) {
+            await set(dbRef(db, `users/${user.uid}/emailVerified`), true);
+            console.log('AuthForm.js - Login - Updated emailVerified to true in DB');
+          }
           navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
-          resetForm();
         }
+        resetForm();
       }
-      //resetForm();
     } catch (error) {
       console.error('AuthForm.js - Authentication error:', error.code, error.message);
       if (error.code === 'auth/email-already-in-use') {
@@ -186,6 +209,8 @@ const AuthForm = () => {
         alert('Invalid email format.');
       } else if (error.code === 'auth/wrong-password') {
         alert('Incorrect password.');
+      } else if (error.code === 'auth/user-not-found') {
+        alert('No account found with this email. Please sign up.');
       } else {
         alert(`Authentication failed: ${error.message}`);
       }
@@ -217,7 +242,6 @@ const AuthForm = () => {
 
   return (
     <div className="auth-container">
-      {/* <button onClick={() => navigate('/welcome')} className="back-button">Back</button>  */}
       <h1 className="auth-title">RESOURCE HUB</h1>
       
       {!showForgotPassword ? (
@@ -239,14 +263,14 @@ const AuthForm = () => {
             <input
               type="email"
               placeholder="Enter your email...."
-             value={email}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <input
               type="password"
               placeholder="Password (8 chars: 5 letters, 2 digits, 1 special)"
-             value={password}
+              value={password}
               onChange={handlePasswordChange}
               required
             />
@@ -327,9 +351,17 @@ const AuthForm = () => {
         </form>
       )}
 
+      <Layout user={null}>
       <footer className="auth-footer">
         <img src={logo} className="landing-logo" alt="logo" />
       </footer>
+    
+    </Layout>
+    {/* <LandbotChat 
+          configUrl="https://chats.landbot.io/v3/YOUR_BOT_ID/index.json" // Replace with your Landbot config URL
+          embedType="livechat" // Or 'popup', 'fullpage'
+          showOnlyForNewUsers={true}
+        /> */}
     </div>
   );
 };
