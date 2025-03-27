@@ -571,7 +571,6 @@ const Dashboard = ({ user }) => {
             )}
       </div>
 
-<<<<<<< HEAD
       {/* Added: Modal for viewing documents */}
       {showModal && modalContent && (
         <div style={{
@@ -627,32 +626,6 @@ const Dashboard = ({ user }) => {
                 Open Link
               </a>
             )}
-=======
-      {activeTab === 'myLibrary' && showModal && modalContent && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <div className="modal-header">
-              <h3>{modalContent.title}</h3>
-              <button className="modal-close-button" onClick={closeModal}>
-                <X size={16} />
-              </button>
-            </div>
-            <div className="modal-body">
-              {modalContent.type === 'pdf' ? (
-                <iframe
-                  src={modalContent.content}
-                  width="100%"
-                  height="100%"
-                  title={modalContent.title}
-                  style={{ border: 'none' }}
-                />
-              ) : (
-                <a href={modalContent.content} target="_blank" rel="noopener noreferrer">
-                  Open Link
-                </a>
-              )}
-            </div>
->>>>>>> 9cc2ce7
           </div>
         </div>
       )}

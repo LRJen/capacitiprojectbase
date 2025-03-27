@@ -7,12 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { ref as dbRef, onValue, push, update, remove } from 'firebase/database';
 import { signOut } from 'firebase/auth';
-<<<<<<< HEAD
-import { Bell, User } from 'lucide-react';
-import { House } from 'lucide-react';
-=======
-import { Bell, X } from 'lucide-react';
->>>>>>> 9cc2ce7
+import { Bell, User, House } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -37,12 +32,10 @@ const AdminDashboard = ({ user }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('manage-resources');
 
-  // Pagination states
   const pageSize = 5;
   const [resourcePage, setResourcePage] = useState(1);
   const [requestPage, setRequestPage] = useState(1);
   const [logPage, setLogPage] = useState(1);
-  // Flags to track fetch completion
   const [resourcesFetched, setResourcesFetched] = useState(false);
   const [requestsFetched, setRequestsFetched] = useState(false);
   const [logsFetched, setLogsFetched] = useState(false);
@@ -51,7 +44,6 @@ const AdminDashboard = ({ user }) => {
     addLog('Component mounted');
     setLoading(true);
 
-    // Fetch all resources
     const resourcesRef = dbRef(db, 'resources');
     onValue(
       resourcesRef,
@@ -82,7 +74,6 @@ const AdminDashboard = ({ user }) => {
       }
     );
 
-    // Fetch all requests
     const requestsRef = dbRef(db, 'requests');
     onValue(
       requestsRef,
@@ -95,7 +86,7 @@ const AdminDashboard = ({ user }) => {
               resourceId: value.resourceId || 'Unknown Resource',
               status: value.status || 'pending',
               timestamp: value.timestamp || 'Unknown Time',
-              rejectionReason: value.rejectionReason || '', // New field for rejection reason
+              rejectionReason: value.rejectionReason || '',
             }))
           : [];
         console.log('AdminDashboard - All requests:', requestList);
@@ -112,15 +103,13 @@ const AdminDashboard = ({ user }) => {
       }
     );
 
-    // Logs are local, so just set the flag
     setLogsFetched(true);
     checkLoadingComplete();
 
-    // Fallback timeout to prevent infinite loading
     const timeout = setTimeout(() => {
       console.log('AdminDashboard - Loading timeout triggered');
       setLoading(false);
-    }, 10000); // 10 seconds
+    }, 10000);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -338,22 +327,18 @@ const AdminDashboard = ({ user }) => {
     setShowNotifications((prev) => !prev);
   };
 
-  // Filter resources based on search term
   const filteredResources = resources.filter((resource) =>
     resource.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginate filtered resources
   const startResourceIndex = (resourcePage - 1) * pageSize;
   const endResourceIndex = startResourceIndex + pageSize;
   const paginatedResources = filteredResources.slice(startResourceIndex, endResourceIndex);
 
-  // Paginate requests
   const startRequestIndex = (requestPage - 1) * pageSize;
   const endRequestIndex = startRequestIndex + pageSize;
   const paginatedRequests = allRequests.slice(startRequestIndex, endRequestIndex);
 
-  // Paginate logs
   const startLogIndex = (logPage - 1) * pageSize;
   const endLogIndex = startLogIndex + pageSize;
   const paginatedLogs = logs.slice(startLogIndex, endLogIndex);
@@ -383,7 +368,6 @@ const AdminDashboard = ({ user }) => {
     ],
   };
 
-<<<<<<< HEAD
   const openTab = (tabId) => {
     setActiveTab(tabId);
   };
@@ -391,60 +375,6 @@ const AdminDashboard = ({ user }) => {
   const handleProfileClick = () => {
     console.log('Dashboard.js - Navigating to profile');
     navigate('/profile');
-  };
-
-  const checkLoadingComplete = (res, reqs) => {
-    if (res.length > -1 && reqs.length > -1) setLoading(false);
-=======
-  const renderPagination = (totalItems, currentPage, setPage) => {
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          className={`page-button ${currentPage === i ? 'active' : ''}`}
-          onClick={() => setPage(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return (
-      <div className="pagination">
-        <button
-          className="page-button"
-          disabled={currentPage === 1}
-          onClick={() => setPage(currentPage - 1)}
-        >
-          Previous
-        </button>
-        {pages}
-        {endPage < totalPages && <span className="pagination-ellipsis">...</span>}
-        {totalPages > maxVisiblePages && (
-          <button
-            className="page-button"
-            onClick={() => setPage(totalPages)}
-          >
-            {totalPages}
-          </button>
-        )}
-        <button
-          className="page-button"
-          disabled={currentPage === totalPages || totalPages === 0}
-          onClick={() => setPage(currentPage + 1)}
-        >
-          Next
-        </button>
-      </div>
-    );
->>>>>>> 9cc2ce7
   };
 
   if (loading) {
@@ -464,13 +394,6 @@ const AdminDashboard = ({ user }) => {
           <img src={logo} className="logo" alt="CAPACITI logo" />
         </Link>
         <h1 className="title">Resource Hub Dashboard</h1>
-<<<<<<< HEAD
-=======
-        <div className="user-info">
-          <h2>Welcome, {user.name}!</h2>
-          <p>Role: {user.role}</p>
-        </div>
->>>>>>> 9cc2ce7
         <div className="user-controls">
           <button className="notification-button" onClick={() => navigate('/')}>
             <House size={24} />
@@ -495,14 +418,13 @@ const AdminDashboard = ({ user }) => {
               )}
             </div>
           )}
-<<<<<<< HEAD
-            <button className="user-button" onClick={handleProfileClick}>
-                        <User size={24} /> <p>Admin Name: {user.name}</p>
-                      </button>
+          <button className="user-button" onClick={handleProfileClick}>
+            <User size={24} /> <p>Admin Name: {user.name}</p>
+          </button>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
-      
+
       {error && <div className="error">{error}</div>}
 
       <div className="tabs-a">
@@ -539,11 +461,11 @@ const AdminDashboard = ({ user }) => {
         </div>
 
         <div className="resources-table"> 
-          <h2>Resources ({totalResources} total)</h2>
+          <h2>Resources ({filteredResources.length} total)</h2>
           <table>
             <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Content</th><th>Actions</th></tr></thead>
             <tbody>
-              {filteredResources.map(resource => (
+              {paginatedResources.map(resource => (
                 <tr key={resource.id}>
                   <td>{resource.title}</td>
                   <td>{resource.type}</td>
@@ -563,283 +485,121 @@ const AdminDashboard = ({ user }) => {
               ))}
             </tbody>
           </table>
-          <div className="pagination-controls">
-            <div className="resource-actions">
-              {displayedResources.length < totalResources && (
-                <button className="load-more-button" onClick={loadMoreResources}>Load More</button>
-              )}
-              {displayedResources.length > pageSize && (
-                <button className="load-less-button" onClick={loadLessResources}>Show Less</button>
-              )}
+          {filteredResources.length > pageSize && (
+            <div className="pagination-controls">
+              <button
+                disabled={resourcePage === 1}
+                onClick={() => setResourcePage(prev => prev - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {resourcePage} of {Math.ceil(filteredResources.length / pageSize)}</span>
+              <button
+                disabled={endResourceIndex >= filteredResources.length}
+                onClick={() => setResourcePage(prev => prev + 1)}
+              >
+                Next
+              </button>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="log-table">
           <h2>Action Logs</h2>
           <table>
             <thead><tr><th>Time</th><th>Message</th></tr></thead>
-            <tbody>{logs.map((log, index) => <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>)}</tbody>
+            <tbody>{paginatedLogs.map((log, index) => <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>)}</tbody>
           </table>
+          {logs.length > pageSize && (
+            <div className="pagination-controls">
+              <button
+                disabled={logPage === 1}
+                onClick={() => setLogPage(prev => prev - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {logPage} of {Math.ceil(logs.length / pageSize)}</span>
+              <button
+                disabled={endLogIndex >= logs.length}
+                onClick={() => setLogPage(prev => prev + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       <div className={`tab-content ${activeTab === 'pending-requests' ? 'active' : ''}`}>
-        <div className= "pending-requests">
+        <div className="pending-requests">
           <h2>Pending Requests</h2>
-            <table>
-              <thead><tr><th>User</th><th>Resource</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody>
-                {displayedRequests.map(req => (
-                  <tr key={req.name}>
-                    <td>{req.userId}</td>
-                    <td>{req.resourceId}</td>
-                    <td>{req.status}</td>
-                    <td>
-                      <div className="resource-actions">
-                        {req.status === 'pending' ? (
-                          <>
-                            <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
-                            <button onClick={() => handleReject(req.id, req.userId, req.resourceId)}>Reject</button>
-                          </>
-                        ) : req.status}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <table>
+            <thead><tr><th>User</th><th>Resource</th><th>Status</th><th>Rejection Reason</th><th>Actions</th></tr></thead>
+            <tbody>
+              {paginatedRequests.map(req => (
+                <tr key={req.id}>
+                  <td>{req.userId}</td>
+                  <td>{req.resourceId}</td>
+                  <td>{req.status}</td>
+                  <td>{req.rejectionReason || '-'}</td>
+                  <td>
+                    <div className="resource-actions">
+                      {req.status === 'pending' ? (
+                        <>
+                          <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
+                          <button onClick={() => handleRejectClick(req.id, req.userId, req.resourceId)}>Reject</button>
+                        </>
+                      ) : req.status}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {allRequests.length > pageSize && (
             <div className="pagination-controls">
-              <div className="resource-actions">
-                {displayedRequests.length < totalRequests && (
-                  <button className="load-more-button" onClick={loadMoreRequests}>Load More</button>
-                )}
-                {displayedRequests.length > pageSize && (
-                  <button className="load-less-button" onClick={loadLessRequests}>Show Less</button>
-                )}
-              </div>
+              <button
+                disabled={requestPage === 1}
+                onClick={() => setRequestPage(prev => prev - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {requestPage} of {Math.ceil(allRequests.length / pageSize)}</span>
+              <button
+                disabled={endRequestIndex >= allRequests.length}
+                onClick={() => setRequestPage(prev => prev + 1)}
+              >
+                Next
+              </button>
             </div>
-          </div>
-=======
-          <button onClick={handleLogout} className="logout-button">
-            Logout
-          </button>
+          )}
         </div>
-      </header>
-
-      <nav className="navbar">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/admin-dashboard">Resources</Link>
-          </li>
-          <li>
-            <Link to="/" onClick={handleLogout}>
-              Logout
-            </Link>
-          </li>
-        </ul>
-      </nav>
-
-      {error && <div className="error">{error}</div>}
-
-      <div className="admin-controls">
-        <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
-        <input
-          type="text"
-          placeholder="Resource Name"
-          value={resourceName}
-          onChange={(e) => setResourceName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={resourceDetails}
-          onChange={(e) => setResourceDetails(e.target.value)}
-        />
-        <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-          <option value="pdf">PDF</option>
-          <option value="training">Training</option>
-          <option value="course">Course</option>
-        </select>
-        {resourceType === 'pdf' ? (
-          <input type="file" onChange={handleFileChange} accept=".pdf" />
-        ) : (
-          <input
-            type="text"
-            placeholder="Enter URL"
-            value={contentUrl}
-            onChange={handleUrlChange}
-          />
-        )}
-        <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
-          {editResourceId ? 'Save Changes' : 'Add Resource'}
-        </button>
-        {editResourceId && (
-          <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>
-        )}
       </div>
 
-      <div className="resources-list">
-        <h2>Resources ({filteredResources.length} total)</h2>
-        <input
-          type="text"
-          placeholder="Search resources..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Content</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedResources.map((resource) => (
-              <tr key={resource.id}>
-                <td>{resource.title}</td>
-                <td>{resource.type}</td>
-                <td>{resource.status}</td>
-                <td>
-                  {resource.type === 'pdf' ? (
-                    <a href={resource.content} download={`${resource.title}.pdf`}>
-                      Download
-                    </a>
-                  ) : (
-                    <a href={resource.content} target="_blank" rel="noopener noreferrer">
-                      Access
-                    </a>
-                  )}
-                </td>
-                <td>
-                  <button onClick={() => handleEditResource(resource)}>Edit</button>
-                  <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {renderPagination(filteredResources.length, resourcePage, setResourcePage)}
-      </div>
-
-      <div className="log-table">
-        <h2>Action Logs ({logs.length} total)</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Message</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedLogs.map((log, index) => (
-              <tr key={startLogIndex + index}>
-                <td>{log.timestamp}</td>
-                <td>{log.message}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {renderPagination(logs.length, logPage, setLogPage)}
-      </div>
-
-      <div className="pending-requests">
-        <h2>All Requests ({allRequests.length} total)</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Resource ID</th>
-              <th>Status</th>
-              <th>Rejection Reason</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedRequests.map((req) => (
-              <tr key={req.id}>
-                <td>{req.userId}</td>
-                <td>{req.resourceId}</td>
-                <td>{req.status}</td>
-                <td>{req.rejectionReason || '-'}</td>
-                <td>
-                  {req.status === 'pending' ? (
-                    <>
-                      <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>
-                        Approve
-                      </button>
-                      <button onClick={() => handleRejectClick(req.id, req.userId, req.resourceId)}>
-                        Reject
-                      </button>
-                    </>
-                  ) : (
-                    req.status
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {renderPagination(allRequests.length, requestPage, setRequestPage)}
+      <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
+        <div className="pending-requests">
+          <h2>Analytics</h2>
+          <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
+          <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
+        </div>
       </div>
 
       {showRejectModal && (
         <div className="modal-overlay">
-          <div className="modal-card">
-            <div className="modal-header">
-              <h3>Reject Request</h3>
-              <button className="modal-close-button" onClick={closeRejectModal}>
-                <X size={16} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>Please provide a reason for rejecting this request:</p>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Enter rejection reason..."
-                rows="4"
-                cols="50"
-                className="rejection-input"
-              />
-              {error && <div className="error">{error}</div>}
-            </div>
-            <div className="modal-footer">
-              <button onClick={handleRejectSubmit} className="action-button">
-                Submit Rejection
-              </button>
-              <button onClick={closeRejectModal} className="action-button cancel-button">
-                Cancel
-              </button>
+          <div className="modal-content">
+            <h3>Reject Request</h3>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter reason for rejection"
+            />
+            <div className="modal-actions">
+              <button onClick={handleRejectSubmit}>Submit</button>
+              <button onClick={closeRejectModal}>Cancel</button>
             </div>
           </div>
         </div>
       )}
-
-      <div className="analytics-section">
-        <h2>Analytics</h2>
-        <div className="chart-container">
-          <Bar data={barData} options={{ responsive: true }} />
-        </div>
-        <div className="chart-container">
-          <Pie data={pieData} options={{ responsive: true }} />
-        </div>
->>>>>>> 9cc2ce7
-      </div>
-
-      <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
-        <div className= "pending-requests">
-          <h2>Analytics</h2>
-            <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
-            <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
-          </div>
-        </div>
     </div>
   );
 };
