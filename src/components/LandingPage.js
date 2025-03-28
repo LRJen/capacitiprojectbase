@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './LandingPage.css';
 import logo from '../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
-import fetchRecommendations from './recommendations'; 
+import fetchRecommendations from './recommendations';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -11,7 +11,8 @@ const LandingPage = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   const handleRegister = () => {
-    navigate('/auth');
+    console.log('LandingPage - Get Started clicked, navigating to /auth'); // Debug log
+    navigate('/auth'); // This takes the user to the auth page
   };
 
   const handleSearch = async (e) => {

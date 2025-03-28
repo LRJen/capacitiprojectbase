@@ -140,7 +140,7 @@ const Dashboard = ({ user }) => {
       requestsUnsubscribe();
       downloadsUnsubscribe();
     };
-  }, [user, navigate]);
+  }, [user?.uid, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -152,6 +152,7 @@ const Dashboard = ({ user }) => {
   };
 
   const handleProfileClick = () => {
+    console.log('Dashboard - Navigating to profile for UID:', user.uid);
     navigate('/profile');
   };
 
@@ -214,7 +215,6 @@ const Dashboard = ({ user }) => {
           downloadedAt: new Date().toISOString(),
         };
         await set(dbRef(db, `userDownloads/${user.uid}/${resource.id}`), downloadData);
-        // Also log to top-level downloads for admin visibility
         await push(dbRef(db, 'downloads'), {
           userId: user.uid,
           resourceId: resource.id,

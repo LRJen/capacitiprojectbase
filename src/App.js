@@ -5,7 +5,7 @@ import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
 import Profile from './components/Profile';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -20,42 +20,70 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    console.log('App.js - useEffect triggered');
+    console.log('App.js - useEffect triggered for auth state listener');
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       console.log('App.js - onAuthStateChanged fired, currentUser:', currentUser);
+      console.log('App.js - Current location:', location.pathname);
+
       if (currentUser) {
-        const userRef = dbRef(db, `users/${currentUser.uid}`);
-        console.log('App.js - Fetching user data for UID:', currentUser.uid);
-        const userSnapshot = await get(userRef);
-        const userData = userSnapshot.val();
-        console.log('App.js - Fetched user data from DB:', userData);
-        const userObj = {
-          ...currentUser,
-          name: userData?.name || currentUser.email.split('@')[0],
-          role: userData?.role || 'user',
-        };
-        console.log('App.js - Setting user object:', userObj);
-        setUser(userObj);
-        const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
-        console.log('App.js - Navigating to:', target);
-        navigate(target);
+        try {
+          const userRef = dbRef(db, `users/${currentUser.uid}`);
+          console.log('App.js - Fetching user data for UID:', currentUser.uid);
+          const userSnapshot = await get(userRef);
+          const userData = userSnapshot.val();
+          console.log('App.js - Fetched user data from DB:', userData);
+
+          const userObj = {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            name: userData?.name || currentUser.email.split('@')[0],
+            role: userData?.role || 'user',
+          };
+          console.log('App.js - Setting user object:', userObj);
+          setUser(userObj);
+
+          // Define valid routes for authenticated users
+          const validAuthenticatedRoutes = ['/dashboard', '/admin-dashboard', '/profile', '/'];
+          const isOnValidRoute = validAuthenticatedRoutes.includes(location.pathname);
+
+          if (!isOnValidRoute) {
+            const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
+            console.log('App.js - Redirecting to:', target, 'from invalid route:', location.pathname);
+            navigate(target, { replace: true });
+          } else {
+            console.log('App.js - Staying on valid route:', location.pathname);
+          }
+        } catch (error) {
+          console.error('App.js - Error fetching user data:', error.message);
+          setUser(null);
+          navigate('/auth', { replace: true });
+        }
       } else {
-        setUser(null);
         console.log('App.js - No user logged in, redirecting to /auth');
-        navigate('/auth');
+        setUser(null);
+        navigate('/auth', { replace: true });
       }
       setLoading(false);
+    }, (error) => {
+      console.error('App.js - Auth state listener error:', error.message);
+      setUser(null);
+      navigate('/auth', { replace: true });
+      setLoading(false);
     });
+
     return () => {
       console.log('App.js - Cleaning up auth listener');
       unsubscribe();
     };
-  }, [navigate]); // Removed user from dependencies
+  }, [navigate, location.pathname]);
 
-  // Memoize user to prevent re-renders unless uid or role changes
-  const memoizedUser = useMemo(() => user, [user?.uid, user?.role]);
+  const memoizedUser = useMemo(() => {
+    if (!user) return null;
+    return { ...user };
+  }, [user?.uid, user?.role, user?.name, user?.email]);
 
   if (loading) {
     console.log('App.js - Loading state active');

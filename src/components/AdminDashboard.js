@@ -16,7 +16,7 @@ const AdminDashboard = ({ user }) => {
   const [allRequests, setAllRequests] = useState([]);
   const [resources, setResources] = useState([]);
   const [downloads, setDownloads] = useState([]);
-  const [users, setUsers] = useState({}); // New state for user data
+  const [users, setUsers] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [recommendSearch, setRecommendSearch] = useState('');
   const [recommendations, setRecommendations] = useState([]);
@@ -58,7 +58,7 @@ const AdminDashboard = ({ user }) => {
     addLog('Component mounted');
 
     let fetchesCompleted = 0;
-    const totalFetches = 4; // Increased to include users
+    const totalFetches = 4;
 
     const checkAllFetchesComplete = () => {
       fetchesCompleted += 1;
@@ -109,7 +109,7 @@ const AdminDashboard = ({ user }) => {
               return {
                 id,
                 userId: value.userId || 'Unknown User',
-                resourceTitle: resource.title, // Use title instead of ID
+                resourceTitle: resource.title,
                 resourceId: value.resourceId || 'Unknown Resource',
                 status: value.status || 'pending',
                 timestamp: value.timestamp || 'Unknown Time',
@@ -435,12 +435,13 @@ const AdminDashboard = ({ user }) => {
   };
 
   const handleProfileClick = () => {
-    console.log('AdminDashboard - Navigating to profile');
+    console.log('AdminDashboard - Navigating to profile for UID:', user.uid);
     navigate('/profile');
   };
 
   const handleUserProfileClick = (userId) => {
-    navigate(`/profile/${userId}`); // Navigate to user-specific profile
+    console.log('AdminDashboard - Navigating to user profile for UID:', userId);
+    navigate(`/profile/${userId}`);
   };
 
   const filteredResources = resources.filter((resource) =>
