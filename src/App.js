@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './App.css';
 import LandingPage from './components/LandingPage';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
-import Profile from './components/Profile'; 
+import Profile from './components/Profile';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
-//import LandbotChat from './components/LandbotChat';
 
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
-  const handleGetStarted = () => navigate('/welcome');
+  const handleGetStarted = () => navigate('/auth');
   return <LandingPage onGetStarted={handleGetStarted} />;
 };
 
@@ -39,11 +38,9 @@ const App = () => {
         };
         console.log('App.js - Setting user object:', userObj);
         setUser(userObj);
-        if (!user || user.uid !== userObj.uid) {
-          const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
-          console.log('App.js - Navigating to:', target);
-          navigate(target);
-        }
+        const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
+        console.log('App.js - Navigating to:', target);
+        navigate(target);
       } else {
         setUser(null);
         console.log('App.js - No user logged in, redirecting to /auth');
@@ -55,31 +52,41 @@ const App = () => {
       console.log('App.js - Cleaning up auth listener');
       unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate]); // Removed user from dependencies
+
+  // Memoize user to prevent re-renders unless uid or role changes
+  const memoizedUser = useMemo(() => user, [user?.uid, user?.role]);
 
   if (loading) {
     console.log('App.js - Loading state active');
     return <div className="loading">Loading...</div>;
   }
 
-  console.log('App.js - Rendering routes with user:', user);
+  console.log('App.js - Rendering routes with user:', memoizedUser);
 
   return (
     <Routes>
       <Route path="/" element={<LandingPageWrapper />} />
       <Route path="/auth" element={<AuthForm />} />
-      <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <LandingPageWrapper />} />
+      <Route
+        path="/dashboard"
+        element={memoizedUser ? <Dashboard user={memoizedUser} /> : <LandingPageWrapper />}
+      />
       <Route
         path="/admin-dashboard"
-        element={user && user.role === 'admin' ? <AdminDashboard user={user} /> : <LandingPageWrapper />}
+        element={
+          memoizedUser && memoizedUser.role === 'admin' ? (
+            <AdminDashboard user={memoizedUser} />
+          ) : (
+            <LandingPageWrapper />
+          )
+        }
       />
       <Route
         path="/profile"
-        element={user ? <Profile user={user} /> : <LandingPageWrapper />}
+        element={memoizedUser ? <Profile user={memoizedUser} /> : <LandingPageWrapper />}
       />
-      
     </Routes>
-    
   );
 };
 
@@ -88,6 +95,5 @@ const AppWrapper = () => (
     <App />
   </Router>
 );
-
 
 export default AppWrapper;

@@ -631,59 +631,7 @@
     height: 300px; /* Further adjusted for very small screens */
   }
 }
-/*
-.pagination {
-  margin-top: 10px;
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-}
 
-.page-button {
-  background: #64ffda;
-  color: #282c34;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.page-button.active {
-  background: #3ec6b7;
-  font-weight: bold;
-}
-
-.page-button:hover:not(.active) {
-  background: #50e0c0;
-}
-
-.pagination-controls {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.load-more-button, .load-less-button {
-  background: #64ffda;
-  color: #282c34;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.load-less-button {
-  background: #ff6b6b; /* Red to contrast "Load More"
-}
-
-.load-more-button:hover {
-  background: #50e0c0;
-}
-
-.load-less-button:hover {
-  background: #e65c5c;
-} */
 
 .pagination {
   margin-top: 20px;
@@ -924,4 +872,148 @@
 
 .cancel-button:hover {
   background-color: #e05570;
+}
+
+.admin-dashboard {
+  padding: 20px;
+  text-align: center;
+}
+
+.search-form {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #218838;
+}
+
+.recommendations-list {
+  margin-top: 20px;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.recommendations-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.recommendations-list li {
+  margin-bottom: 15px;
+}
+
+.recommendations-list a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.recommendations-list a:hover {
+  text-decoration: underline;
+}
+
+.autofill-button {
+  padding: 4px 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.autofill-button:hover {
+  background-color: #0056b3;
+}
+
+.confirm-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+}
+
+.clear-button {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.clear-button:hover {
+  background-color: #c82333;
+}
+
+.downloads {
+  padding: 20px;
+}
+
+.autofill-button {
+  margin-top: 5px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.autofill-button:hover {
+  background-color: #0056b3;
+}
+
+.clear-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background-color: #5a6268;
+}
+
+.confirm-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
 }

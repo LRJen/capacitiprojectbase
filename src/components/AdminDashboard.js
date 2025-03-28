@@ -8,13 +8,18 @@ import { auth, db } from '../firebase';
 import { ref as dbRef, onValue, push, update, remove } from 'firebase/database';
 import { signOut } from 'firebase/auth';
 import { Bell, User, House } from 'lucide-react';
+import fetchRecommendations from './recommendations';
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const AdminDashboard = ({ user }) => {
   const [allRequests, setAllRequests] = useState([]);
   const [resources, setResources] = useState([]);
+  const [downloads, setDownloads] = useState([]);
+  const [users, setUsers] = useState({}); // New state for user data
   const [searchTerm, setSearchTerm] = useState('');
+  const [recommendSearch, setRecommendSearch] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
   const [resourceName, setResourceName] = useState('');
   const [resourceDetails, setResourceDetails] = useState('');
   const [resourceType, setResourceType] = useState('pdf');
@@ -29,25 +34,46 @@ const AdminDashboard = ({ user }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentRequestId, setCurrentRequestId] = useState(null);
-  const navigate = useNavigate();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingResource, setPendingResource] = useState(null);
   const [activeTab, setActiveTab] = useState('manage-resources');
+  const navigate = useNavigate();
 
   const pageSize = 5;
   const [resourcePage, setResourcePage] = useState(1);
   const [requestPage, setRequestPage] = useState(1);
   const [logPage, setLogPage] = useState(1);
-  const [resourcesFetched, setResourcesFetched] = useState(false);
-  const [requestsFetched, setRequestsFetched] = useState(false);
-  const [logsFetched, setLogsFetched] = useState(false);
+  const [downloadPage, setDownloadPage] = useState(1);
 
   useEffect(() => {
-    addLog('Component mounted');
+    if (!user || user.role !== 'admin') {
+      console.log('AdminDashboard - No admin user available');
+      setLoading(false);
+      navigate('/auth');
+      return;
+    }
+
+    console.log('AdminDashboard - Starting fetches');
     setLoading(true);
+    addLog('Component mounted');
+
+    let fetchesCompleted = 0;
+    const totalFetches = 4; // Increased to include users
+
+    const checkAllFetchesComplete = () => {
+      fetchesCompleted += 1;
+      console.log(`AdminDashboard - Fetch completed, progress: ${fetchesCompleted}/${totalFetches}`);
+      if (fetchesCompleted === totalFetches) {
+        console.log('AdminDashboard - All fetches complete');
+        setLoading(false);
+      }
+    };
 
     const resourcesRef = dbRef(db, 'resources');
-    onValue(
+    const resourcesUnsubscribe = onValue(
       resourcesRef,
       (snapshot) => {
+        console.log('AdminDashboard - Resources snapshot received:', snapshot.exists());
         const data = snapshot.val();
         const resourceList = data
           ? Object.entries(data).map(([id, value]) => ({
@@ -60,70 +86,99 @@ const AdminDashboard = ({ user }) => {
               createdAt: value.createdAt || '',
             }))
           : [];
-        console.log('AdminDashboard - All resources:', resourceList);
         setResources(resourceList);
-        setResourcesFetched(true);
-        checkLoadingComplete();
+        console.log('AdminDashboard - Resources fetched:', resourceList.length);
+        checkAllFetchesComplete();
       },
-      { onlyOnce: true },
       (error) => {
-        console.error('AdminDashboard - Error fetching resources:', error);
+        console.error('AdminDashboard - Resources fetch error:', error);
         setError('Failed to fetch resources: ' + error.message);
-        setResourcesFetched(true);
-        checkLoadingComplete();
+        checkAllFetchesComplete();
       }
     );
 
     const requestsRef = dbRef(db, 'requests');
-    onValue(
+    const requestsUnsubscribe = onValue(
       requestsRef,
       (snapshot) => {
+        console.log('AdminDashboard - Requests snapshot received:', snapshot.exists());
         const data = snapshot.val();
         const requestList = data
+          ? Object.entries(data).map(([id, value]) => {
+              const resource = resources.find((r) => r.id === value.resourceId) || { title: value.resourceId };
+              return {
+                id,
+                userId: value.userId || 'Unknown User',
+                resourceTitle: resource.title, // Use title instead of ID
+                resourceId: value.resourceId || 'Unknown Resource',
+                status: value.status || 'pending',
+                timestamp: value.timestamp || 'Unknown Time',
+                rejectionReason: value.rejectionReason || '',
+              };
+            })
+          : [];
+        setAllRequests(requestList);
+        console.log('AdminDashboard - Requests fetched:', requestList.length);
+        checkAllFetchesComplete();
+      },
+      (error) => {
+        console.error('AdminDashboard - Requests fetch error:', error);
+        setError('Failed to fetch requests: ' + error.message);
+        checkAllFetchesComplete();
+      }
+    );
+
+    const downloadsRef = dbRef(db, 'downloads');
+    const downloadsUnsubscribe = onValue(
+      downloadsRef,
+      (snapshot) => {
+        console.log('AdminDashboard - Downloads snapshot received:', snapshot.exists());
+        const data = snapshot.val();
+        const downloadList = data
           ? Object.entries(data).map(([id, value]) => ({
               id,
               userId: value.userId || 'Unknown User',
               resourceId: value.resourceId || 'Unknown Resource',
-              status: value.status || 'pending',
+              title: value.title || 'Unknown Resource',
               timestamp: value.timestamp || 'Unknown Time',
-              rejectionReason: value.rejectionReason || '',
             }))
           : [];
-        console.log('AdminDashboard - All requests:', requestList);
-        setAllRequests(requestList);
-        setRequestsFetched(true);
-        checkLoadingComplete();
+        setDownloads(downloadList);
+        console.log('AdminDashboard - Downloads fetched:', downloadList.length);
+        checkAllFetchesComplete();
       },
-      { onlyOnce: true },
       (error) => {
-        console.error('AdminDashboard - Error fetching requests:', error);
-        setError('Failed to fetch requests: ' + error.message);
-        setRequestsFetched(true);
-        checkLoadingComplete();
+        console.error('AdminDashboard - Downloads fetch error:', error);
+        setError('Failed to fetch downloads: ' + error.message);
+        checkAllFetchesComplete();
       }
     );
 
-    setLogsFetched(true);
-    checkLoadingComplete();
+    const usersRef = dbRef(db, 'users');
+    const usersUnsubscribe = onValue(
+      usersRef,
+      (snapshot) => {
+        console.log('AdminDashboard - Users snapshot received:', snapshot.exists());
+        const data = snapshot.val();
+        setUsers(data || {});
+        console.log('AdminDashboard - Users fetched:', Object.keys(data || {}).length);
+        checkAllFetchesComplete();
+      },
+      (error) => {
+        console.error('AdminDashboard - Users fetch error:', error);
+        setError('Failed to fetch users: ' + error.message);
+        checkAllFetchesComplete();
+      }
+    );
 
-    const timeout = setTimeout(() => {
-      console.log('AdminDashboard - Loading timeout triggered');
-      setLoading(false);
-    }, 10000);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  const checkLoadingComplete = () => {
-    console.log('AdminDashboard - checkLoadingComplete:', {
-      resourcesFetched,
-      requestsFetched,
-      logsFetched,
-    });
-    if (resourcesFetched && requestsFetched && logsFetched) {
-      setLoading(false);
-    }
-  };
+    return () => {
+      console.log('AdminDashboard - Cleaning up');
+      resourcesUnsubscribe();
+      requestsUnsubscribe();
+      downloadsUnsubscribe();
+      usersUnsubscribe();
+    };
+  }, [user?.uid, user?.role, navigate]);
 
   const addLog = (message) => {
     const newLog = { timestamp: new Date().toLocaleTimeString(), message };
@@ -229,21 +284,49 @@ const AdminDashboard = ({ user }) => {
         content,
         createdAt: new Date().toISOString(),
       };
+      setPendingResource(newResource);
+      setShowConfirmModal(true);
+    } catch (error) {
+      setError('Failed to prepare resource: ' + error.message);
+    }
+  };
+
+  const confirmAddResource = async () => {
+    try {
       const resourcesRef = dbRef(db, 'resources');
-      const newResourceRef = await push(resourcesRef, newResource);
+      const newResourceRef = await push(resourcesRef, pendingResource);
       addLog(`Resource added with ID: ${newResourceRef.key}`);
-      addNotification(`Resource "${resourceName}" added`);
+      addNotification(`Resource "${pendingResource.title}" added`);
       setResources((prev) => [
         ...prev,
-        { id: newResourceRef.key, ...newResource },
+        { id: newResourceRef.key, ...pendingResource },
       ]);
       setResourceName('');
       setResourceDetails('');
       setFile(null);
       setContentUrl('');
+      setShowConfirmModal(false);
+      setPendingResource(null);
     } catch (error) {
       setError('Failed to add resource: ' + error.message);
+      setShowConfirmModal(false);
     }
+  };
+
+  const cancelAddResource = () => {
+    setShowConfirmModal(false);
+    setPendingResource(null);
+    addLog('Resource addition cancelled');
+  };
+
+  const handleClearForm = () => {
+    setResourceName('');
+    setResourceDetails('');
+    setResourceType('pdf');
+    setFile(null);
+    setContentUrl('');
+    setEditResourceId(null);
+    addLog('Resource form cleared');
   };
 
   const handleEditResource = (resource) => {
@@ -327,6 +410,39 @@ const AdminDashboard = ({ user }) => {
     setShowNotifications((prev) => !prev);
   };
 
+  const handleRecommendSearch = async (e) => {
+    e.preventDefault();
+    if (recommendSearch.trim()) {
+      try {
+        const recs = await fetchRecommendations(recommendSearch);
+        setRecommendations(recs);
+        addLog(`Searched for recommendations: ${recommendSearch}`);
+      } catch (error) {
+        setError('Failed to fetch recommendations: ' + error.message);
+        addLog(`Recommendation search failed: ${error.message}`);
+      }
+    }
+  };
+
+  const handleAutoFill = (rec) => {
+    setResourceName(rec.title);
+    setResourceDetails(rec.snippet);
+    setResourceType('course');
+    setContentUrl(rec.link);
+    setFile(null);
+    setEditResourceId(null);
+    addLog(`Auto-filled form with recommendation: ${rec.title}`);
+  };
+
+  const handleProfileClick = () => {
+    console.log('AdminDashboard - Navigating to profile');
+    navigate('/profile');
+  };
+
+  const handleUserProfileClick = (userId) => {
+    navigate(`/profile/${userId}`); // Navigate to user-specific profile
+  };
+
   const filteredResources = resources.filter((resource) =>
     resource.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -343,6 +459,10 @@ const AdminDashboard = ({ user }) => {
   const endLogIndex = startLogIndex + pageSize;
   const paginatedLogs = logs.slice(startLogIndex, endLogIndex);
 
+  const startDownloadIndex = (downloadPage - 1) * pageSize;
+  const endDownloadIndex = startDownloadIndex + pageSize;
+  const paginatedDownloads = downloads.slice(startDownloadIndex, endDownloadIndex);
+
   const barData = {
     labels: resources.map((r) => r.title),
     datasets: [
@@ -350,6 +470,11 @@ const AdminDashboard = ({ user }) => {
         label: 'Requests',
         data: resources.map((r) => allRequests.filter((req) => req.resourceId === r.id).length),
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      },
+      {
+        label: 'Downloads',
+        data: resources.map((r) => downloads.filter((d) => d.resourceId === r.id).length),
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
       },
     ],
   };
@@ -372,16 +497,12 @@ const AdminDashboard = ({ user }) => {
     setActiveTab(tabId);
   };
 
-  const handleProfileClick = () => {
-    console.log('Dashboard.js - Navigating to profile');
-    navigate('/profile');
-  };
-
   if (loading) {
     return (
       <div className="dashboard-container">
         <div style={{ textAlign: 'center', padding: '20px', fontSize: '1.5rem' }}>
           Loading...
+          {error && <p className="error">{error}</p>}
         </div>
       </div>
     );
@@ -429,24 +550,29 @@ const AdminDashboard = ({ user }) => {
 
       <div className="tabs-a">
         <div className={`tab-a ${activeTab === 'manage-resources' ? 'active' : ''}`} onClick={() => openTab('manage-resources')}>
-          Manage Resource
+          Manage Resources
         </div>
         <div className={`tab-a ${activeTab === 'pending-requests' ? 'active' : ''}`} onClick={() => openTab('pending-requests')}>
           Pending Requests
         </div>
-        <div className={`tab-a ${activeTab === 'analytics-section' ? 'active' : ''}`} onClick={() => setActiveTab('analytics-section')}>
-          Analytics Section
+        <div className={`tab-a ${activeTab === 'downloads' ? 'active' : ''}`} onClick={() => openTab('downloads')}>
+          Downloads
+        </div>
+        <div className={`tab-a ${activeTab === 'analytics-section' ? 'active' : ''}`} onClick={() => openTab('analytics-section')}>
+          Analytics
         </div>
       </div>
 
       <div className={`tab-content ${activeTab === 'manage-resources' ? 'active' : ''}`}>
-        <div className="manage-resources">  
+        <div className="manage-resources">
           <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
           <div className="admin-controls">
             <input type="text" placeholder="Resource Name" value={resourceName} onChange={(e) => setResourceName(e.target.value)} />
             <input type="text" placeholder="Description" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} />
             <select value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-              <option value="pdf">PDF</option><option value="training">Training</option><option value="course">Course</option>
+              <option value="pdf">PDF</option>
+              <option value="training">Training</option>
+              <option value="course">Course</option>
             </select>
             {resourceType === 'pdf' ? (
               <input type="file" onChange={handleFileChange} accept=".pdf" />
@@ -456,25 +582,65 @@ const AdminDashboard = ({ user }) => {
             <button onClick={editResourceId ? handleSaveEdit : handleAddResource}>
               {editResourceId ? 'Save Changes' : 'Add Resource'}
             </button>
+            <button onClick={handleClearForm} className="clear-button">Clear Form</button>
             {editResourceId && <button onClick={() => setEditResourceId(null)}>Cancel Edit</button>}
           </div>
+
+          <h3>Find Resources to Add</h3>
+          <form onSubmit={handleRecommendSearch} className="recommend-search-form">
+            <input
+              type="text"
+              value={recommendSearch}
+              onChange={(e) => setRecommendSearch(e.target.value)}
+              placeholder="Search for resource ideas..."
+              className="search-input"
+            />
+            <button type="submit" className="search-button">Search</button>
+          </form>
+          {recommendations.length > 0 && (
+            <div className="recommendations-list">
+              <h4>Suggested Resources</h4>
+              <ul>
+                {recommendations.map((rec, index) => (
+                  <li key={index}>
+                    <a href={rec.link} target="_blank" rel="noopener noreferrer">
+                      {rec.title}
+                    </a>
+                    <p>{rec.snippet}</p>
+                    <button onClick={() => handleAutoFill(rec)} className="autofill-button">
+                      Use This
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        <div className="resources-table"> 
+        <div className="resources-table">
           <h2>Resources ({filteredResources.length} total)</h2>
+          <input
+            type="text"
+            placeholder="Search resources..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
           <table>
             <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Content</th><th>Actions</th></tr></thead>
             <tbody>
-              {paginatedResources.map(resource => (
+              {paginatedResources.map((resource) => (
                 <tr key={resource.id}>
                   <td>{resource.title}</td>
                   <td>{resource.type}</td>
                   <td>{resource.status}</td>
-                  <td>{resource.type === 'pdf' ? (
-                    <a href={resource.content} download={`${resource.title}.pdf`}>Download</a>
-                  ) : (
-                    <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
-                  )}</td>
+                  <td>
+                    {resource.type === 'pdf' ? (
+                      <a href={resource.content} download={`${resource.title}.pdf`}>Download</a>
+                    ) : (
+                      <a href={resource.content} target="_blank" rel="noopener noreferrer">Access</a>
+                    )}
+                  </td>
                   <td>
                     <div className="resource-actions">
                       <button onClick={() => handleEditResource(resource)}>Edit</button>
@@ -487,16 +653,13 @@ const AdminDashboard = ({ user }) => {
           </table>
           {filteredResources.length > pageSize && (
             <div className="pagination-controls">
-              <button
-                disabled={resourcePage === 1}
-                onClick={() => setResourcePage(prev => prev - 1)}
-              >
+              <button disabled={resourcePage === 1} onClick={() => setResourcePage((prev) => prev - 1)}>
                 Previous
               </button>
               <span>Page {resourcePage} of {Math.ceil(filteredResources.length / pageSize)}</span>
               <button
                 disabled={endResourceIndex >= filteredResources.length}
-                onClick={() => setResourcePage(prev => prev + 1)}
+                onClick={() => setResourcePage((prev) => prev + 1)}
               >
                 Next
               </button>
@@ -508,20 +671,21 @@ const AdminDashboard = ({ user }) => {
           <h2>Action Logs</h2>
           <table>
             <thead><tr><th>Time</th><th>Message</th></tr></thead>
-            <tbody>{paginatedLogs.map((log, index) => <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>)}</tbody>
+            <tbody>
+              {paginatedLogs.map((log, index) => (
+                <tr key={index}><td>{log.timestamp}</td><td>{log.message}</td></tr>
+              ))}
+            </tbody>
           </table>
           {logs.length > pageSize && (
             <div className="pagination-controls">
-              <button
-                disabled={logPage === 1}
-                onClick={() => setLogPage(prev => prev - 1)}
-              >
+              <button disabled={logPage === 1} onClick={() => setLogPage((prev) => prev - 1)}>
                 Previous
               </button>
               <span>Page {logPage} of {Math.ceil(logs.length / pageSize)}</span>
               <button
                 disabled={endLogIndex >= logs.length}
-                onClick={() => setLogPage(prev => prev + 1)}
+                onClick={() => setLogPage((prev) => prev + 1)}
               >
                 Next
               </button>
@@ -536,10 +700,14 @@ const AdminDashboard = ({ user }) => {
           <table>
             <thead><tr><th>User</th><th>Resource</th><th>Status</th><th>Rejection Reason</th><th>Actions</th></tr></thead>
             <tbody>
-              {paginatedRequests.map(req => (
+              {paginatedRequests.map((req) => (
                 <tr key={req.id}>
-                  <td>{req.userId}</td>
-                  <td>{req.resourceId}</td>
+                  <td>
+                    <button onClick={() => handleUserProfileClick(req.userId)} className="user-link">
+                      {users[req.userId]?.name || req.userId}
+                    </button>
+                  </td>
+                  <td>{req.resourceTitle}</td>
                   <td>{req.status}</td>
                   <td>{req.rejectionReason || '-'}</td>
                   <td>
@@ -549,7 +717,9 @@ const AdminDashboard = ({ user }) => {
                           <button onClick={() => handleApprove(req.id, req.userId, req.resourceId)}>Approve</button>
                           <button onClick={() => handleRejectClick(req.id, req.userId, req.resourceId)}>Reject</button>
                         </>
-                      ) : req.status}
+                      ) : (
+                        req.status
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -558,16 +728,49 @@ const AdminDashboard = ({ user }) => {
           </table>
           {allRequests.length > pageSize && (
             <div className="pagination-controls">
-              <button
-                disabled={requestPage === 1}
-                onClick={() => setRequestPage(prev => prev - 1)}
-              >
+              <button disabled={requestPage === 1} onClick={() => setRequestPage((prev) => prev - 1)}>
                 Previous
               </button>
               <span>Page {requestPage} of {Math.ceil(allRequests.length / pageSize)}</span>
               <button
                 disabled={endRequestIndex >= allRequests.length}
-                onClick={() => setRequestPage(prev => prev + 1)}
+                onClick={() => setRequestPage((prev) => prev + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={`tab-content ${activeTab === 'downloads' ? 'active' : ''}`}>
+        <div className="downloads">
+          <h2>Downloads ({downloads.length} total)</h2>
+          <table>
+            <thead><tr><th>User</th><th>Resource</th><th>Timestamp</th></tr></thead>
+            <tbody>
+              {paginatedDownloads.map((download) => (
+                <tr key={download.id}>
+                  <td>
+                    <button onClick={() => handleUserProfileClick(download.userId)} className="user-link">
+                      {users[download.userId]?.name || download.userId}
+                    </button>
+                  </td>
+                  <td>{download.title}</td>
+                  <td>{download.timestamp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {downloads.length > pageSize && (
+            <div className="pagination-controls">
+              <button disabled={downloadPage === 1} onClick={() => setDownloadPage((prev) => prev - 1)}>
+                Previous
+              </button>
+              <span>Page {downloadPage} of {Math.ceil(downloads.length / pageSize)}</span>
+              <button
+                disabled={endDownloadIndex >= downloads.length}
+                onClick={() => setDownloadPage((prev) => prev + 1)}
               >
                 Next
               </button>
@@ -577,7 +780,7 @@ const AdminDashboard = ({ user }) => {
       </div>
 
       <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
-        <div className="pending-requests">
+        <div className="analytics-section">
           <h2>Analytics</h2>
           <div className="chart-container"><Bar data={barData} options={{ responsive: true }} /></div>
           <div className="chart-container"><Pie data={pieData} options={{ responsive: true }} /></div>
@@ -596,6 +799,22 @@ const AdminDashboard = ({ user }) => {
             <div className="modal-actions">
               <button onClick={handleRejectSubmit}>Submit</button>
               <button onClick={closeRejectModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && pendingResource && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Confirm Resource Addition</h3>
+            <p><strong>Title:</strong> {pendingResource.title}</p>
+            <p><strong>Description:</strong> {pendingResource.description}</p>
+            <p><strong>Type:</strong> {pendingResource.type}</p>
+            <p><strong>Content:</strong> {pendingResource.type === 'pdf' ? 'PDF file uploaded' : pendingResource.content}</p>
+            <div className="modal-actions">
+              <button onClick={confirmAddResource} className="confirm-button">Confirm</button>
+              <button onClick={cancelAddResource}>Cancel</button>
             </div>
           </div>
         </div>

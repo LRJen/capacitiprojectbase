@@ -1,4 +1,6 @@
 const fetchRecommendations = async (searchTerm) => {
+  console.log('API Key:', process.env.REACT_APP_GOOGLE_SEARCH_API_KEY);
+  console.log('Search Engine ID:', process.env.REACT_APP_GOOGLE_SEARCH_ENGINE_ID);
   const apiKey = process.env.REACT_APP_GOOGLE_SEARCH_API_KEY;
   const cx = process.env.REACT_APP_GOOGLE_SEARCH_ENGINE_ID;
   const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(searchTerm)}`;

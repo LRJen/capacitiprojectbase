@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, Search, User, X } from 'lucide-react';
-import { House } from 'lucide-react';
+import { Bell, Search, User, X, House } from 'lucide-react';
 import './Dashboard.css';
 import logo from '../assets/logo.png';
 import { ref as dbRef, onValue, push, remove, set, query, orderByChild, equalTo } from 'firebase/database';
@@ -23,38 +22,38 @@ const Dashboard = ({ user }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState(null);
 
-  // Pagination states
   const pageSize = 5;
   const [resourcePage, setResourcePage] = useState(1);
   const [downloadPage, setDownloadPage] = useState(1);
-  // Flags to track fetch completion
-  const [resourcesFetched, setResourcesFetched] = useState(false);
-  const [downloadsFetched, setDownloadsFetched] = useState(false);
-  const [requestsFetched, setRequestsFetched] = useState(false);
-  // Flag to ensure initial load only happens once
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
     if (!user || !user.uid) {
-      console.log('Dashboard.js - No user UID available yet');
+      console.log('Dashboard - No user available');
       setLoading(false);
+      navigate('/auth');
       return;
     }
 
-    console.log('Dashboard.js - User UID:', user.uid);
+    console.log('Dashboard - Starting fetches for UID:', user.uid);
     setLoading(true);
 
-    // Reset fetch flags on mount
-    setResourcesFetched(false);
-    setDownloadsFetched(false);
-    setRequestsFetched(false);
-    setInitialLoadComplete(false);
+    let fetchesCompleted = 0;
+    const totalFetches = 3;
 
-    // Fetch all resources
+    const checkAllFetchesComplete = () => {
+      fetchesCompleted += 1;
+      console.log(`Dashboard - Fetch completed, progress: ${fetchesCompleted}/${totalFetches}`);
+      if (fetchesCompleted === totalFetches) {
+        console.log('Dashboard - All fetches complete');
+        setLoading(false);
+      }
+    };
+
     const resourcesRef = dbRef(db, 'resources');
     const resourcesUnsubscribe = onValue(
       resourcesRef,
       (snapshot) => {
+        console.log('Dashboard - Resources snapshot received:', snapshot.exists());
         const data = snapshot.val();
         const resourceList = data
           ? Object.entries(data).map(([id, value]) => ({
@@ -67,24 +66,22 @@ const Dashboard = ({ user }) => {
               createdAt: value.createdAt || '',
             }))
           : [];
-        console.log('Dashboard - All resources:', resourceList);
         setResources(resourceList);
-        setResourcesFetched(true);
-        checkLoadingComplete();
+        console.log('Dashboard - Resources fetched:', resourceList.length);
+        checkAllFetchesComplete();
       },
       (error) => {
-        console.error('Dashboard - Error fetching resources:', error);
+        console.error('Dashboard - Resources fetch error:', error);
         setError('Failed to fetch resources: ' + error.message);
-        setResourcesFetched(true);
-        checkLoadingComplete();
+        checkAllFetchesComplete();
       }
     );
 
-    // Fetch requests for the current user only
     const requestsRef = query(dbRef(db, 'requests'), orderByChild('userId'), equalTo(user.uid));
     const requestsUnsubscribe = onValue(
       requestsRef,
       (snapshot) => {
+        console.log('Dashboard - Requests snapshot received:', snapshot.exists());
         const data = snapshot.val();
         const requestList = data
           ? Object.entries(data).map(([id, value]) => {
@@ -107,67 +104,43 @@ const Dashboard = ({ user }) => {
               };
             })
           : [];
-        console.log('Dashboard - Fetched requests:', requestList);
         setNotifications(requestList);
         setUnreadCount(requestList.length);
-        setRequestsFetched(true);
-        checkLoadingComplete();
+        console.log('Dashboard - Requests fetched:', requestList.length);
+        checkAllFetchesComplete();
       },
       (error) => {
-        console.error('Dashboard - Error fetching requests:', error);
+        console.error('Dashboard - Requests fetch error:', error);
         setError('Failed to fetch requests: ' + error.message);
-        setRequestsFetched(true);
-        checkLoadingComplete();
+        checkAllFetchesComplete();
       }
     );
 
-    // Fetch all downloads
     const downloadsRef = dbRef(db, `userDownloads/${user.uid}`);
     const downloadsUnsubscribe = onValue(
       downloadsRef,
       (snapshot) => {
+        console.log('Dashboard - Downloads snapshot received:', snapshot.exists());
         const data = snapshot.val();
         const downloadList = data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : [];
-        console.log('Dashboard - All downloads:', downloadList);
         setDownloads(downloadList);
-        setDownloadsFetched(true);
-        checkLoadingComplete();
+        console.log('Dashboard - Downloads fetched:', downloadList.length);
+        checkAllFetchesComplete();
       },
       (error) => {
-        console.error('Dashboard - Error fetching downloads:', error);
+        console.error('Dashboard - Downloads fetch error:', error);
         setError('Failed to fetch downloads: ' + error.message);
-        setDownloadsFetched(true);
-        checkLoadingComplete();
+        checkAllFetchesComplete();
       }
     );
 
-    // Fallback timeout
-    const timeout = setTimeout(() => {
-      console.log('Dashboard - Loading timeout triggered');
-      setLoading(false);
-      setInitialLoadComplete(true);
-    }, 10000);
-
     return () => {
-      clearTimeout(timeout);
+      console.log('Dashboard - Cleaning up');
       resourcesUnsubscribe();
       requestsUnsubscribe();
       downloadsUnsubscribe();
     };
-  }, [user]);
-
-  const checkLoadingComplete = () => {
-    console.log('Dashboard - checkLoadingComplete:', {
-      resourcesFetched,
-      downloadsFetched,
-      requestsFetched,
-      initialLoadComplete,
-    });
-    if (resourcesFetched && downloadsFetched && requestsFetched && !initialLoadComplete) {
-      setLoading(false);
-      setInitialLoadComplete(true);
-    }
-  };
+  }, [user, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -241,6 +214,13 @@ const Dashboard = ({ user }) => {
           downloadedAt: new Date().toISOString(),
         };
         await set(dbRef(db, `userDownloads/${user.uid}/${resource.id}`), downloadData);
+        // Also log to top-level downloads for admin visibility
+        await push(dbRef(db, 'downloads'), {
+          userId: user.uid,
+          resourceId: resource.id,
+          title: resource.title,
+          timestamp: new Date().toISOString(),
+        });
         setNotifications((prev) => prev.filter((notif) => notif.resourceId !== resource.id));
         setDownloads((prev) => {
           const updatedDownloads = [...prev, { id: resource.id, ...downloadData }];
@@ -270,7 +250,6 @@ const Dashboard = ({ user }) => {
     setShowNotifications(false);
   };
 
-  // Filter resources based on active tab and type filter
   const applyTypeFilter = (resourcesList) => {
     if (resourceTypeFilter === 'all') return resourcesList;
     return resourcesList.filter((resource) => resource.type === resourceTypeFilter);
@@ -314,7 +293,6 @@ const Dashboard = ({ user }) => {
     )
   );
 
-  // Client-side pagination for filtered resources
   const paginateResources = (resourceList, page) => {
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -382,6 +360,7 @@ const Dashboard = ({ user }) => {
       <div className="dashboard-container">
         <div style={{ textAlign: 'center', padding: '20px', fontSize: '1.5rem' }}>
           Loading...
+          {error && <p className="error">{error}</p>}
         </div>
       </div>
     );
@@ -466,7 +445,7 @@ const Dashboard = ({ user }) => {
           className={`tab ${activeTab === 'available' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('available');
-            setResourcePage(1); // Reset page when switching tabs
+            setResourcePage(1);
           }}
         >
           All Available Resources ({filteredAvailableResources.length})
@@ -475,7 +454,7 @@ const Dashboard = ({ user }) => {
           className={`tab ${activeTab === 'myResources' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('myResources');
-            setResourcePage(1); // Reset page when switching tabs
+            setResourcePage(1);
           }}
         >
           My Resources ({filteredPendingResources.length + filteredApprovedResources.length + filteredRejectedResources.length})
@@ -484,7 +463,7 @@ const Dashboard = ({ user }) => {
           className={`tab ${activeTab === 'myLibrary' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('myLibrary');
-            setDownloadPage(1); // Reset page when switching tabs
+            setDownloadPage(1);
           }}
         >
           My Library ({filteredLibraryResources.length})
@@ -571,7 +550,6 @@ const Dashboard = ({ user }) => {
             )}
       </div>
 
-      {/* Added: Modal for viewing documents */}
       {showModal && modalContent && (
         <div style={{
           position: 'fixed',
@@ -579,7 +557,7 @@ const Dashboard = ({ user }) => {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -612,7 +590,6 @@ const Dashboard = ({ user }) => {
               Close
             </button>
             <h3>{modalContent.title}</h3>
-            {/* Display content based on type */}
             {modalContent.type === 'pdf' ? (
               <iframe
                 src={modalContent.content}
