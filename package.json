@@ -1,28 +1,26 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
-  "homepage": "https://lrjen.github.io/capacitiprojectbase/",
+  "name": "capacitiprojectbase",
+  "version": "1.0.0",
   "private": true,
+  "homepage": "https://lrjen.github.io/capacitiprojectbase/",
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "chart.js": "^4.4.7",
+    "chart.js": "^4.4.1",
     "firebase": "^11.3.1",
     "lucide-react": "^0.475.0",
-    "react": "^19.0.0",
+    "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.2.0",
-    "react-scripts": "^5.0.1",
-    "save-dev": "^0.0.1-security",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   },
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -44,8 +42,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^6.3.0"
   }
 }
