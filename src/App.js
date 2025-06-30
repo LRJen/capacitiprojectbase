@@ -45,32 +45,36 @@ const App = () => {
           console.log('App.js - Setting user object:', userObj);
           setUser(userObj);
 
-          // Define valid routes for authenticated users
-          const validAuthenticatedRoutes = ['/dashboard', '/admin-dashboard', '/profile', '/'];
-          const isOnValidRoute = validAuthenticatedRoutes.includes(location.pathname);
+          const protectedRoutes = ['/dashboard', '/admin-dashboard', '/profile'];
+          const isOnProtectedRoute = protectedRoutes.includes(location.pathname);
 
-          if (!isOnValidRoute) {
+          // ✅ Redirect only from /auth, NOT from /
+          if (location.pathname === '/auth') {
             const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
-            console.log('App.js - Redirecting to:', target, 'from invalid route:', location.pathname);
+            console.log('App.js - Redirecting from /auth to:', target);
             navigate(target, { replace: true });
-          } else {
-            console.log('App.js - Staying on valid route:', location.pathname);
+          } else if (!isOnProtectedRoute) {
+            console.log('App.js - Unprotected route, no redirect needed');
           }
         } catch (error) {
           console.error('App.js - Error fetching user data:', error.message);
           setUser(null);
-          navigate('/auth', { replace: true });
         }
       } else {
-        console.log('App.js - No user logged in, redirecting to /auth');
+        console.log('App.js - No user logged in');
         setUser(null);
-        navigate('/auth', { replace: true });
+
+        const publicRoutes = ['/', '/auth'];
+        const isOnPublicRoute = publicRoutes.includes(location.pathname);
+
+        if (!isOnPublicRoute) {
+          console.log('App.js - Not on public route, redirecting to /auth');
+          navigate('/auth', { replace: true });
+        } else {
+          console.log('App.js - On public route, staying put');
+        }
       }
-      setLoading(false);
-    }, (error) => {
-      console.error('App.js - Auth state listener error:', error.message);
-      setUser(null);
-      navigate('/auth', { replace: true });
+
       setLoading(false);
     });
 
@@ -103,11 +107,9 @@ const App = () => {
       <Route
         path="/admin-dashboard"
         element={
-          memoizedUser && memoizedUser.role === 'admin' ? (
-            <AdminDashboard user={memoizedUser} />
-          ) : (
-            <LandingPageWrapper />
-          )
+          memoizedUser && memoizedUser.role === 'admin'
+            ? <AdminDashboard user={memoizedUser} />
+            : <LandingPageWrapper />
         }
       />
       <Route
