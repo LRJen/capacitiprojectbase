@@ -1,0 +1,301 @@
+/* === Global Container === */
+.landing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 4vh 5vw;
+  background: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+/* === Hero Section === */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4vh;
+  padding-top: 10vh;
+}
+
+.landing-logo {
+  width: 10vw;
+  max-width: 6rem;
+  margin: 2vh 0;
+}
+
+.landing-title {
+  font-size: 3rem;
+  font-weight: 600;
+  color: #0E3C67;
+  margin: 1rem 0;
+}
+
+.landing-description {
+  font-size: 1.25rem;
+  color: #0E3C67;
+  max-width: 40rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* === Search Form === */
+.search-form {
+  display: flex;
+  gap: 1.2vw;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 4vh;
+}
+
+.search-input {
+  padding: 0.75rem;
+  width: 30vw;
+  max-width: 20rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.search-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #218838;
+}
+
+/* === Get Started Button === */
+.landing-buttons {
+  margin-top: 2vh;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.get-started-button {
+  padding: 1rem 2rem;
+  background: #70BDF4;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.get-started-button:hover {
+  background: #3472AB;
+}
+
+/* === Recommendation Popup === */
+.recommendation-popup {
+  position: fixed;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 0.8rem;
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.recommendation-popup h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  color: #0E3C67;
+}
+
+.recommendation-popup ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.recommendation-popup li {
+  margin-bottom: 2vh;
+  text-align: left;
+}
+
+.recommendation-popup a {
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.recommendation-popup a:hover {
+  text-decoration: underline;
+}
+
+.close-button {
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background-color: #c82333;
+}
+
+/* === Animation === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 768px) {
+  .landing-title {
+    font-size: 2.2rem;
+  }
+
+  .landing-description {
+    font-size: 1.1rem;
+  }
+
+  .search-input {
+    width: 70vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-logo {
+    width: 16vw;
+  }
+
+  .landing-title {
+    font-size: 1.75rem;
+  }
+
+  .landing-description {
+    font-size: 1rem;
+  }
+
+  .search-form {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .get-started-button {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* === Navbar === */
+.navbar {
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2vh 4vw;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navbar-logo {
+  height: 6vh;
+  max-height: 3rem;
+  margin-right: 1vw;
+}
+
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0E3C67;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 3vw;
+  align-items: center;
+}
+
+.navbar-links a {
+  color: #0E3C67;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-auth-button {
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #0E3C67;
+  color: white;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.nav-auth-button:hover {
+  background-color: #70BDF4;
+}
+
+/* === Responsive Navbar === */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar-links {
+    margin-top: 1vh;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .navbar-right {
+    margin-top: 1vh;
+    align-self: flex-end;
+  }
+}

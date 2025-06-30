@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import './App.css';
-import LandingPage from './components/LandingPage';
+import './styles/App.css';
+import LandingPage from './components/Landing/LandingPage';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';

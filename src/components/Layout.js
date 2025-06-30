@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase'; 
 import { signOut } from 'firebase/auth';
 import logo from '../assets/logo.png';
-import './Layout.css'; 
+import '../styles/Layout.css'; 
 
 /* // Header Component
 const Header = ({ user }) => {

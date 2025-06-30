@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell, Search, User, X, House } from 'lucide-react';
-import './Dashboard.css';
+import '../styles/Dashboard.css';
 import logo from '../assets/logo.png';
 import { ref as dbRef, onValue, push, remove, set, query, orderByChild, equalTo } from 'firebase/database';
 

@@ -1,0 +1,78 @@
+/* src/Recommendations.css */
+.recommendations-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .recommendations-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .recommendations-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .recommendation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .recommendation-item:last-child {
+    border-bottom: none;
+  }
+  
+  .recommendation-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .recommendation-button:hover {
+    background-color: #0056b3;
+  }
+
+  .recommend-search-form {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .recommendations-list {
+    margin-top: 20px;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .recommendations-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .recommendations-list li {
+    margin-bottom: 15px;
+  }
+  
+  .recommendations-list a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .recommendations-list a:hover {
+    text-decoration: underline;
+  }
