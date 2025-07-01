@@ -1,205 +1,228 @@
-/* AuthForm.css */
 .auth-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding: 4vh 5vw;
+  background: white;
   min-height: 100vh;
-  padding: 20px;
-  background: #f8f9fa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  padding: 8px 16px;
-  border: none;
-  background: #4b9cea;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.back-button:hover {
-  background: #1e90ff;
-}
-
 .auth-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #0E3C67;
-  margin-bottom: 20px;
-}
-
-.auth-title h1:nth-child(-n + 8) {
-  color:#0E3C67
+  margin-bottom: 2vh;
 }
 
 .auth-toggle-buttons {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 1.5vw;
+  margin-bottom: 2vh;
 }
 
 .auth-toggle-buttons button {
-  padding: 10px 20px;
+  padding: 0.8rem 2rem;
   border: none;
-  background: #DDE8F1;
-  border-radius: 5px;
+  font-size: 1rem;
+  background: white;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease;
+  font-weight: 600;
+  color: #0E3C67;
+  border-radius: 0.5rem;
+  border: 0.15rem solid #0E3C67;
 }
 
 .auth-toggle-buttons .active {
-  background: #3472AB;
+  background: #0E3C67;
   color: white;
+  font-weight: 600;
 }
 
-.auth-toggle-buttons button:hover:not(.active) {
-  background: #BEDDF6;
+.auth-toggle-buttons button:hover{
+  box-shadow:  0 2px 7px rgba(0, 0, 0, 0.5);
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1.2rem;
   width: 100%;
-  max-width: 400px;
-  background: #DDE8F1;
-  padding: 20px;
-  border: 2px solid #70BDF4;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 28rem;
+  background: linear-gradient(135deg, #70BDF4, #3472AB, #0E3C67); /* Top-left to bottom-right */
+  padding: 2rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
+/* Input Fields */
 .auth-form input {
-  padding: 10px;
-  border: 2px solid #3472AB;
-  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: none;
+  border-radius: 0.5rem;
   font-size: 1rem;
+  width: 100%;
   text-align: center;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
   outline: none;
-  transition: border-color 0.3s ease;
+  color: #0E3C67;
+  font-weight: 500;
 }
 
 .auth-form input:focus {
-  border-color: #0E3C67;
+  box-shadow:  0 2px 7px rgba(0, 0, 0, 0.5);
 }
 
+.auth-form input::placeholder {
+  color: #0E3C67;
+  opacity: 1;
+}
+
+.auth-form input:-ms-input-placeholder { /* IE 10-11 */
+  color: #0E3C67;
+}
+
+.auth-form input::-ms-input-placeholder { /* Edge */
+  color: #0E3C67;
+}
+
+/* Password Field Wrapper */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  padding-right: 3rem; /* space for icon */
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #3472AB;
+}
+
+/* Auth Buttons */
 .auth-button {
-  padding: 12px;
+  padding: 0.6rem;
+  background: white;
+  color: #0E3C67;
+  border: none;
+  font-size: 1.1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
   width: 30%;
   align-self: center;
-  border: none;
-  background: #3472AB;
-  color: white;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
   transition: background 0.3s ease;
+  font-weight: 500;
 }
 
 .auth-button:hover {
-  background: #0E3C67;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.toggle-form-button {
-  margin-top: 10px;
-  padding: 8px 16px;
-  border: none;
-  background: transparent;
-  color: #4b9cea;
+/* Switch Form Button */
+.toggle-form-text {
+  margin-top: 0.8rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: white;
   cursor: pointer;
   transition: color 0.3s ease;
+  font-weight: bold;
 }
 
-.toggle-form-button:hover {
-  color: #4b9cea;
+.toggle-form-text:hover {
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.auth-footer {
-  margin-top: 20px;
+/* Forgot Password */
+.forgot-password-text {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #0E3C67;
+  cursor: pointer;
   text-align: center;
+  transition: color 0.3s ease;
+  font-weight: bold
+}
+
+.forgot-password-text:hover {
+  color: #3472AB;
+}
+
+/* Validation Feedback */
+.validation-feedback {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 1rem;
+  min-width: 14rem;
+  max-width: 80vw;
+}
+
+/* Footer */
+.auth-footer {
+  margin-top: 3vh;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.password-strength-wrapper {
+  width: 100%;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.password-strength-bar {
+  width: 100%;
+  background: #e0e0e0;
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.password-strength-label {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .landing-logo {
-  width: 50px;
+  width: 3rem;
 }
 
-/* Responsive Design */
+.back-to-login-text {
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+  color: #0E3C67;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.3s ease;
+  font-weight: bold;
+}
+
+.back-to-login-text:hover {
+  color: #3472AB;
+}
+
+/* Responsive */
 @media (max-width: 480px) {
   .auth-form {
-    padding: 15px;
+    padding: 1.5rem;
   }
 
   .auth-title {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
-}
 
-/* Add to AuthForm.css */
-.forgot-password-button {
-  margin-top: 10px;
-  background: none;
-  border: none;
-  color: #70BDF4;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.forgot-password-button:hover {
-  color: #3472AB;
-}
-
-/* Add to AuthForm.css */
-.dropdown {
-  position: relative;
-  display: inline-block;
-  text-align: center;
-}
-
-.validation-feedback {
-  margin-top: 5px;
-  font-size: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  padding: 12px 16px;
-  z-index: 1;
-}
-
-.dropdown:hover .validation-feedback {
-  display: block;
-}
-
-.valid {
-  color: green;
-}
-
-.invalid {
-  color: red;
-}
-
-/* Existing forgot-password-button styles (ensure these are present) */
-.forgot-password-button {
-  margin-top: 10px;
-  background: none;
-  border: none;
-  color: #70BDF4;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.forgot-password-button:hover {
-  color: #3472AB;
+  .auth-button {
+    width: 70%;
+  }
 }

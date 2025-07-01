@@ -17,7 +17,6 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 4vh;
-  padding-top: 10vh;
 }
 
 .landing-logo {
@@ -84,10 +83,10 @@
 
 .get-started-button {
   padding: 1rem 2rem;
-  background: #70BDF4;
-  color: white;
-  border: none;
+  background-color: white;
+  color: #0E3C67;
   border-radius: 0.5rem;
+  border: 0.15rem solid #0E3C67;
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
@@ -95,7 +94,8 @@
 }
 
 .get-started-button:hover {
-  background: #3472AB;
+  color: white;
+  background-color: #0E3C67 ;
 }
 
 /* === Recommendation Popup === */
@@ -214,7 +214,7 @@
 
 /* === Navbar === */
 .navbar {
-  width: 55%;
+  width: 60%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -222,6 +222,7 @@
   position: sticky;
   top: 0;
   z-index: 999;
+  padding-bottom: 10vh;
 }
 
 .navbar-left {
@@ -268,16 +269,18 @@
 .nav-auth-button {
   padding: 0.6rem 1.5rem;
   font-size: 1rem;
-  border: none;
-  background-color: #0E3C67;
-  color: white;
+  background-color: white;
+  color: #0E3C67;
   border-radius: 0.5rem;
+  border: 0.15rem solid #0E3C67;
   cursor: pointer;
   transition: background 0.3s ease;
+  font-weight: bold
 }
 
 .nav-auth-button:hover {
-  background-color: #70BDF4;
+  background-color: #0E3C67;
+  color: white;
 }
 
 /* === Responsive Navbar === */
