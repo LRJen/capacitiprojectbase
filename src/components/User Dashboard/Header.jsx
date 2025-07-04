@@ -1,17 +1,20 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, User, House, X } from 'lucide-react';
-import logo from '../../assets/logo.png';
+import { Bell, User, House } from 'lucide-react';
+import logo from '../../assets/logo-light.png';
 
 const Header = ({ user, unreadCount, onProfileClick, onLogout, toggleNotifications }) => {
   const navigate = useNavigate();
 
   return (
     <header className="header">
-      <Link to="/" className="logo-link">
-        <img src={logo} alt="CAPACITI logo" className="logo" />
-      </Link>
-      <h1 className="title">Resource Hub Dashboard</h1>
+      <div className="header-left">
+        <Link to="/" className="logo-title-link">
+          <img src={logo} alt="CAPACITI logo" className="logo" />
+          <h1 className="title">Resource Hub</h1>
+        </Link>
+      </div>
+
       <div className="user-controls">
         <button className="notification-button" onClick={() => navigate('/')}>
           <House size={24} />

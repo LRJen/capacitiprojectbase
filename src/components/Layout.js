@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase'; 
 import { signOut } from 'firebase/auth';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo-light.png';
 import '../styles/Layout.css'; 
 
 /* // Header Component

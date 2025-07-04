@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo-light.png';
 import '../../styles/LandingPage.css'; // already loaded globally, but safe here
 
 const Navbar = () => {

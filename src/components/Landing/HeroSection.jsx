@@ -1,4 +1,4 @@
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo-light.png';
 
 const HeroSection = () => (
   <div className="hero-section">

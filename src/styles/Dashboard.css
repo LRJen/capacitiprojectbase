@@ -15,7 +15,7 @@
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
-  background: var(--secondary-bg);
+  background: #eeeeee;
 }
 
 /* HEADER */
@@ -23,48 +23,64 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem;
-  background: #fff;
-  border-bottom: 0.2rem solid var(--text-color);
+  padding: 2vh 4vw;
+  background: white;
+  border-bottom: 0.3rem solid #0E3C67;
   box-shadow: var(--shadow);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logo-title-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
 }
 
 .logo {
-  width: 5rem;              /* responsive base size */
-  height: 5rem;             /* force height to match */
-  max-width: 10vw;          /* prevent it from stretching too wide */
-  max-height: 10vw;         /* prevent excessive height */
+  width: 3rem;
+  height: auto;
   border-radius: 50%;
-  object-fit: cover;
-  display: block;
   transition: transform var(--transition);
 }
 
 .logo:hover {
-  transform: scale(1.1);
-}
-
-.logo-link {
-  display: inline-block;
+  transform: scale(1.05);
 }
 
 .title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-size: 2rem;
   font-weight: 700;
   color: var(--primary-color);
-  letter-spacing: 0.05rem;
+  margin: 0;
+}
+
+.user-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .user-info h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   margin: 0;
   color: var(--primary-color);
 }
 
-.user-info p {
-  margin-top: 0.3rem;
-  color: var(--muted-text);
+.user-button p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  margin: 0;
 }
 
 .user-controls {
@@ -88,21 +104,24 @@
   background: #fff;
   box-shadow: var(--shadow);
   position: relative;
+  color: var(--primary-color);
 }
 
 .notification-button:hover {
-  background: var(--accent-color);
+  background: #0E3C67;
   color: #fff;
 }
 
 .logout-button {
-  background: var(--accent-color);
-  color: #fff;
+  background: white;
+  color: #0E3C67;
+  border: 0.15rem solid #0E3C67;
   font-weight: 600;
 }
 
 .logout-button:hover {
-  background: var(--text-color);
+  background: #0E3C67;
+  color: #fff;
 }
 
 .user-button {
@@ -114,7 +133,7 @@
 }
 
 .user-button:hover {
-  color: var(--accent-color);
+  transform: scale(1.03);
 }
 
 /* NAVBAR */
@@ -169,8 +188,7 @@
 }
 
 .search-input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.25rem rgba(14, 60, 103, 0.2);
+  border: 2px solid #0E3C67;
 }
 
 /* TABS */
@@ -488,5 +506,22 @@
 
   .modal-body iframe {
     height: 14rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .user-controls {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .title {
+    font-size: 1.5rem;
   }
 }

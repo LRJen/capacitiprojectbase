@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Dashboard.css';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo-light.png';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
 import { Link, useNavigate } from 'react-router-dom';
