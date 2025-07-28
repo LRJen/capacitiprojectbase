@@ -6,16 +6,32 @@ const ResourceRow = ({ resource, notifications, tab, handleRequest, handleCancel
 
   const actionButton = () => {
     if (tab === 'available') {
-      return <button onClick={() => handleRequest(resource.id)}>Request</button>;
+      return (
+        <button className="action-button request" onClick={() => handleRequest(resource.id)}>
+          Request
+        </button>
+      );
     } else if (tab === 'myResources') {
       if (notif?.status === 'pending') {
-        return <button onClick={() => handleCancelRequest(notif.id, resource.id)}>Cancel</button>;
+        return (
+          <button className="action-button cancel-button" onClick={() => handleCancelRequest(notif.id, resource.id)}>
+            Cancel
+          </button>
+        );
       }
       if (notif?.status === 'approved') {
-        return <button onClick={() => handleDownloadOrAccess(resource)}>Download</button>;
+        return (
+          <button className="action-button download-button" onClick={() => handleDownloadOrAccess(resource)}>
+            Download
+          </button>
+        );
       }
     } else if (tab === 'myLibrary') {
-      return <button onClick={() => handleDownloadOrAccess(resource)}>View</button>;
+      return (
+        <button className="action-button view-button" onClick={() => handleDownloadOrAccess(resource)}>
+          View
+        </button>
+      );
     }
     return null;
   };

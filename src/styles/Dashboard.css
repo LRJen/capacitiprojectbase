@@ -163,8 +163,14 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 2rem 0;
-  width: 100%;
+  margin: 2vh 0;
+  flex-wrap: wrap;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
 }
 
 .search-icon {
@@ -173,12 +179,13 @@
   left: 1rem;
   transform: translateY(-50%);
   color: var(--muted-text);
+  pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  border: 1px solid #e2e8f0;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid #fff;
   border-radius: var(--border-radius);
   font-size: 1rem;
   outline: none;
@@ -189,6 +196,23 @@
 
 .search-input:focus {
   border: 2px solid #0E3C67;
+}
+
+.type-filter {
+  padding: 0.9rem 0.5rem;
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  border: 2px solid #0E3C67;
+  background-color: #fff;
+  color: #0E3C67;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.type-filter:hover,
+.type-filter:focus {
+  border-color: #3472AB;
+  outline: none;
+  color: #3472AB;
 }
 
 /* TABS */
@@ -203,11 +227,12 @@
 .tab {
   padding: 0.75rem 1.5rem;
   border: none;
-  background: #e2e8f0;
+  background: #eeeeee;
   border-radius: var(--border-radius);
+  border: 0.15rem solid #eeeeee;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: #0E3C67;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -215,11 +240,13 @@
 .tab-active {
   background: var(--primary-color);
   color: #fff;
+  border: 0.15rem solid #0E3C67;
   box-shadow: var(--shadow);
 }
 
 .tab:hover:not(.tab-active) {
-  background: #cbd5e1;
+  background: #eeeeee;
+  border: 0.15rem solid #0E3C67;
   transform: translateY(-0.2rem);
 }
 
@@ -261,7 +288,8 @@
 }
 
 .resources-table td {
-  color: var(--text-color);
+  color: #0E3C67;
+  font-weight: 500;
 }
 
 .resources-table tr:last-child td {
@@ -280,23 +308,30 @@
 
 /* ACTION BUTTONS */
 .action-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: var(--accent-color);
-  color: #fff;
+  padding: 0.8rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0E3C67;
+  background-color: #fff;
+  border: 0.15rem solid #0E3C67;
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-weight: 600;
-  transition: var(--transition);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: var(--shadow);
+  text-align: center;
+  white-space: nowrap;
 }
 
 .action-button:hover:not(:disabled) {
-  background: var(--text-color);
+  background-color: #0E3C67;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 .action-button:disabled {
-  background: #b0b0b0;
+  background-color: #bbb;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .cancel-button {
