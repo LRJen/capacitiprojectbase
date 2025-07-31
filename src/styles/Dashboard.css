@@ -451,7 +451,7 @@
   padding: 0.9rem 0.5rem;
   font-size: 1rem;
   border-radius: var(--border-radius);
-  border: 2px solid #0E3C67;
+  border: 2px solid #fff;
   background-color: #fff;
   color: #0E3C67;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -459,9 +459,9 @@
 
 .type-filter:hover,
 .type-filter:focus {
-  border-color: #3472AB;
+  border-color: #0E3C67;
   outline: none;
-  color: #3472AB;
+  color: #0E3C67;
 }
 
 /* TABS */

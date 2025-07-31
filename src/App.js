@@ -5,11 +5,18 @@ import AuthForm from './components/Auth/AuthForm';
 import Dashboard from './components/User Dashboard/Dashboard';
 import AdminDashboard from './components/Admin Dashboard/AdminDashboard';
 import Profile from './components/Profile';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
 
+// Wrapper for LandingPage to handle Get Started nav
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
   const handleGetStarted = () => navigate('/auth');
@@ -23,18 +30,14 @@ const App = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('App.js - useEffect triggered for auth state listener');
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log('App.js - onAuthStateChanged fired, currentUser:', currentUser);
-      console.log('App.js - Current location:', location.pathname);
+      const path = location.pathname;
 
       if (currentUser) {
         try {
           const userRef = dbRef(db, `users/${currentUser.uid}`);
-          console.log('App.js - Fetching user data for UID:', currentUser.uid);
-          const userSnapshot = await get(userRef);
-          const userData = userSnapshot.val();
-          console.log('App.js - Fetched user data from DB:', userData);
+          const snapshot = await get(userRef);
+          const userData = snapshot.val();
 
           const userObj = {
             uid: currentUser.uid,
@@ -42,73 +45,51 @@ const App = () => {
             name: userData?.name || currentUser.email.split('@')[0],
             role: userData?.role || 'user',
           };
-          console.log('App.js - Setting user object:', userObj);
+
           setUser(userObj);
 
-          const protectedRoutes = ['/dashboard', '/admin-dashboard', '/profile'];
-          const isOnProtectedRoute = protectedRoutes.includes(location.pathname);
-
-          // ✅ Redirect only from /auth, NOT from /
-          if (location.pathname === '/auth') {
+          if (path === '/auth') {
             const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
-            console.log('App.js - Redirecting from /auth to:', target);
             navigate(target, { replace: true });
-          } else if (!isOnProtectedRoute) {
-            console.log('App.js - Unprotected route, no redirect needed');
           }
-        } catch (error) {
-          console.error('App.js - Error fetching user data:', error.message);
+        } catch (err) {
+          console.error('Error fetching user data:', err);
           setUser(null);
         }
       } else {
-        console.log('App.js - No user logged in');
         setUser(null);
-
-        const publicRoutes = ['/', '/auth'];
-        const isOnPublicRoute = publicRoutes.includes(location.pathname);
-
-        if (!isOnPublicRoute) {
-          console.log('App.js - Not on public route, redirecting to /auth');
-          navigate('/auth', { replace: true });
-        } else {
-          console.log('App.js - On public route, staying put');
+        const isPublic = path === '/' || path === '/auth';
+        if (!isPublic) {
+          navigate('/', { replace: true }); // ⬅️ Redirect to Landing Page when logged out
         }
       }
 
       setLoading(false);
     });
 
-    return () => {
-      console.log('App.js - Cleaning up auth listener');
-      unsubscribe();
-    };
-  }, [navigate, location.pathname]);
+    return () => unsubscribe();
+  }, [location.pathname, navigate]);
 
   const memoizedUser = useMemo(() => {
     if (!user) return null;
     return { ...user };
-  }, [user?.uid, user?.role, user?.name, user?.email]);
+  }, [user]);
 
-  if (loading) {
-    console.log('App.js - Loading state active');
-    return <div className="loading">Loading...</div>;
-  }
+  if (loading) return <div className="loading">Loading...</div>;
 
   const handleLogout = async () => {
-      try {
-        await auth.signOut();
-        setUser(null);
-        navigate('/auth');
-      } catch (err) {
-        console.error('Logout failed:', err.message);
-      }
-    };
+    try {
+      await auth.signOut();
+      setUser(null);
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
 
-    const handleProfileClick = () => {
-      navigate('/profile'); // or '/admin-profile' if you use a separate admin profile
-    };
-
-  console.log('App.js - Rendering routes with user:', memoizedUser);
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
 
   return (
     <Routes>
@@ -121,13 +102,15 @@ const App = () => {
       <Route
         path="/admin-dashboard"
         element={
-          memoizedUser && memoizedUser.role === 'admin'
-            ? <AdminDashboard
-                user={memoizedUser}
-                handleLogout={handleLogout}
-                handleProfileClick={handleProfileClick}
-              />
-            : <LandingPageWrapper />
+          memoizedUser?.role === 'admin' ? (
+            <AdminDashboard
+              user={memoizedUser}
+              handleLogout={handleLogout}
+              handleProfileClick={handleProfileClick}
+            />
+          ) : (
+            <LandingPageWrapper />
+          )
         }
       />
       <Route
@@ -138,8 +121,9 @@ const App = () => {
   );
 };
 
+// ✅ Set basename for subfolder deployment (like GitHub Pages or custom subpaths)
 const AppWrapper = () => (
-  <Router>
+  <Router basename={process.env.PUBLIC_URL || '/'}>
     <App />
   </Router>
 );
