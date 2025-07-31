@@ -10,6 +10,7 @@ import LogsTable from './LogsTable';
 import RejectModal from './RejectModal';
 import ConfirmModal from './ConfirmModal';
 import '../../styles/Dashboard.css';
+import '../../styles/AdminDashboard.css';
 
 const AdminDashboard = (props) => {
   const navigate = useNavigate();
