@@ -14,6 +14,8 @@ import '../../styles/Dashboard.css';
 const AdminDashboard = (props) => {
   const navigate = useNavigate();
 
+  const [activeTab, setActiveTab] = useState('pending-requests');
+
   const {
     user,
     notifications,
@@ -23,8 +25,6 @@ const AdminDashboard = (props) => {
     handleProfileClick,
     handleUserProfileClick,
     error,
-    activeTab,
-    setActiveTab,
     editResourceId,
     setEditResourceId,
     resourceName,
@@ -102,61 +102,62 @@ const AdminDashboard = (props) => {
     <div className="dashboard-container">
       <Header
         user={user}
-        notifications={notifications}
-        showNotifications={showNotifications}
+        unreadCount={notifications?.length || 0}
         toggleNotifications={toggleNotifications}
-        handleProfileClick={handleProfileClick}
-        handleLogout={handleLogout}
+        onProfileClick={handleProfileClick}
+        onLogout={handleLogout}
       />
 
       {error && <div className="error">{error}</div>}
 
       <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className={`tab-content ${activeTab === 'manage-resources' ? 'active' : ''}`}>
-        <ManageResourcesTab
-          editResourceId={editResourceId}
-          resourceName={resourceName}
-          setResourceName={setResourceName}
-          resourceDetails={resourceDetails}
-          setResourceDetails={setResourceDetails}
-          resourceType={resourceType}
-          setResourceType={setResourceType}
-          handleFileChange={handleFileChange}
-          file={file}
-          contentUrl={contentUrl}
-          handleUrlChange={handleUrlChange}
-          handleAddResource={handleAddResource}
-          handleSaveEdit={handleSaveEdit}
-          handleClearForm={handleClearForm}
-          setEditResourceId={setEditResourceId}
-          handleRecommendSearch={handleRecommendSearch}
-          recommendSearch={recommendSearch}
-          recommendations={recommendations}
-          handleAutoFill={handleAutoFill}
-          filteredResources={filteredResources}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          paginatedResources={paginatedResources}
-          handleEditResource={handleEditResource}
-          handleDeleteResource={handleDeleteResource}
-          pageSize={pageSize}
-          resourcePage={resourcePage}
-          setResourcePage={setResourcePage}
-          endResourceIndex={endResourceIndex}
-        />
+      {activeTab === 'manage-resources' && (
+        <>
+          <ManageResourcesTab
+            editResourceId={editResourceId}
+            resourceName={resourceName}
+            setResourceName={setResourceName}
+            resourceDetails={resourceDetails}
+            setResourceDetails={setResourceDetails}
+            resourceType={resourceType}
+            setResourceType={setResourceType}
+            handleFileChange={handleFileChange}
+            file={file}
+            contentUrl={contentUrl}
+            handleUrlChange={handleUrlChange}
+            handleAddResource={handleAddResource}
+            handleSaveEdit={handleSaveEdit}
+            handleClearForm={handleClearForm}
+            setEditResourceId={setEditResourceId}
+            handleRecommendSearch={handleRecommendSearch}
+            recommendSearch={recommendSearch}
+            setRecommendSearch={setRecommendSearch}
+            recommendations={recommendations}
+            handleAutoFill={handleAutoFill}
+            filteredResources={filteredResources}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            paginatedResources={paginatedResources}
+            handleEditResource={handleEditResource}
+            handleDeleteResource={handleDeleteResource}
+            pageSize={pageSize}
+            resourcePage={resourcePage}
+            setResourcePage={setResourcePage}
+            endResourceIndex={endResourceIndex}
+          />
+          <LogsTable
+            paginatedLogs={paginatedLogs}
+            logPage={logPage}
+            setLogPage={setLogPage}
+            pageSize={pageSize}
+            endLogIndex={endLogIndex}
+            logs={logs}
+          />
+        </>
+      )}
 
-        <LogsTable
-          paginatedLogs={paginatedLogs}
-          logPage={logPage}
-          setLogPage={setLogPage}
-          pageSize={pageSize}
-          endLogIndex={endLogIndex}
-          logs={logs}
-        />
-      </div>
-
-      <div className={`tab-content ${activeTab === 'pending-requests' ? 'active' : ''}`}>
+      {activeTab === 'pending-requests' && (
         <PendingRequestsTab
           paginatedRequests={paginatedRequests}
           users={users}
@@ -169,9 +170,9 @@ const AdminDashboard = (props) => {
           pageSize={pageSize}
           endRequestIndex={endRequestIndex}
         />
-      </div>
+      )}
 
-      <div className={`tab-content ${activeTab === 'downloads' ? 'active' : ''}`}>
+      {activeTab === 'downloads' && (
         <DownloadsTab
           paginatedDownloads={paginatedDownloads}
           users={users}
@@ -182,11 +183,11 @@ const AdminDashboard = (props) => {
           pageSize={pageSize}
           endDownloadIndex={endDownloadIndex}
         />
-      </div>
+      )}
 
-      <div className={`tab-content ${activeTab === 'analytics-section' ? 'active' : ''}`}>
+      {activeTab === 'analytics-section' && (
         <AnalyticsTab barData={barData} pieData={pieData} />
-      </div>
+      )}
 
       <RejectModal
         showRejectModal={showRejectModal}

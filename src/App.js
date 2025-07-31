@@ -94,6 +94,20 @@ const App = () => {
     return <div className="loading">Loading...</div>;
   }
 
+  const handleLogout = async () => {
+      try {
+        await auth.signOut();
+        setUser(null);
+        navigate('/auth');
+      } catch (err) {
+        console.error('Logout failed:', err.message);
+      }
+    };
+
+    const handleProfileClick = () => {
+      navigate('/profile'); // or '/admin-profile' if you use a separate admin profile
+    };
+
   console.log('App.js - Rendering routes with user:', memoizedUser);
 
   return (
@@ -108,7 +122,11 @@ const App = () => {
         path="/admin-dashboard"
         element={
           memoizedUser && memoizedUser.role === 'admin'
-            ? <AdminDashboard user={memoizedUser} />
+            ? <AdminDashboard
+                user={memoizedUser}
+                handleLogout={handleLogout}
+                handleProfileClick={handleProfileClick}
+              />
             : <LandingPageWrapper />
         }
       />
