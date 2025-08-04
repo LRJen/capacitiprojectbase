@@ -1,21 +1,124 @@
-.manage-resources {
-  background: #fff;
-  padding: 2rem;
+/* Pending Requests Section */
+.pending-requests h1 {
+  color: var(--primary-color);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  margin-bottom: 1.5rem;
+}
+
+.pending-requests table {
+  border-collapse: collapse;
   border-radius: var(--border-radius);
+  overflow: hidden;
   box-shadow: var(--shadow);
+  background-color: #fff;
+}
+
+.pending-requests th,
+.pending-requests td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.pending-requests th {
+  background-color: var(--primary-color);
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 600;
+  user-select: none;
+}
+
+.pending-requests td {
+  font-weight: 500;
+}
+
+.pending-requests .user-link {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pending-requests .user-link:hover {
+  color: var(--primary-color);
+}
+
+.resource-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.resource-actions button {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  border: 0.15rem solid var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.resource-actions button:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination-controls button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #fff;
+  color: var(--primary-color);
+  border: 0.15rem solid var(--primary-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  color: #666;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.manage-resources {
+  border-radius: var(--border-radius);
   max-width: 100rem;
-  margin: 2rem auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
 /* Headings */
+.manage-resources h1,
 .manage-resources h2,
 .manage-resources h3,
-.manage-resources h4 {
+.manage-resources h4,
+.downloads h1,
+.analytics-section h1 {
   color: var(--primary-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Admin Form Controls */

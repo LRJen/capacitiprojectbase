@@ -161,6 +161,27 @@
   border-bottom: 0.15rem solid var(--accent-color);
 }
 
+/* Search Container */
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2vh;
+}
+
+.search-left {
+  flex: 1;
+  min-width: 60%;
+}
+
+.search-right {
+  min-width: 12rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* Tabs */
 .tabs {
   display: flex;
@@ -172,6 +193,7 @@
 .tab {
   padding: 0.75rem 1.5rem;
   border: none;
+  margin: 1vh 1vh 0 0;
   background: #eeeeee;
   border-radius: var(--border-radius);
   border: 0.15rem solid #eeeeee;
@@ -280,10 +302,6 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
-}
-
 /* User link button inside tables */
 .user-link {
   background: none;
@@ -310,7 +328,7 @@ textarea {
   border-radius: var(--border-radius);
   background: #f9f9f9;
   transition: border-color var(--transition), background var(--transition);
-  min-width: 12rem;
+  min-width: 6rem;
   box-sizing: border-box;
 }
 

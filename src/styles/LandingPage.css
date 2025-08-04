@@ -51,6 +51,7 @@
 
 .search-input {
   padding: 0.75rem;
+  margin: 1vh 1vh 0 0;
   width: 30vw;
   max-width: 20rem;
   border: 1px solid #ccc;

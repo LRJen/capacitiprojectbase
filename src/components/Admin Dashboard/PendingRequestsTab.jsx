@@ -14,7 +14,7 @@ const PendingRequestsTab = ({
 }) => {
   return (
     <div className="pending-requests">
-      <h2>Pending Requests</h2>
+      <h1>Pending Requests</h1>
       <table>
         <thead>
           <tr>

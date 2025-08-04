@@ -35,7 +35,7 @@ const ManageResourcesTab = ({
 }) => {
   return (
     <div className="manage-resources">
-      <h2>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h2>
+      <h1>{editResourceId ? 'Edit Resource' : 'Manage Resources'}</h1>
       <div className="admin-controls">
         <input type="text" value={resourceName} onChange={(e) => setResourceName(e.target.value)} placeholder="Resource Name" />
         <input type="text" value={resourceDetails} onChange={(e) => setResourceDetails(e.target.value)} placeholder="Description" />

@@ -7,7 +7,7 @@ const AnalyticsTab = ({ barData, pieData }) => {
 
   return (
     <div className="analytics-section">
-      <h2>Analytics</h2>
+      <h1>Analytics</h1>
 
       <div className="chart-container">
         {hasValidBarData ? (

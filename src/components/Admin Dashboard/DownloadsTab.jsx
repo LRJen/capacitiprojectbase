@@ -12,7 +12,7 @@ const DownloadsTab = ({
 }) => {
   return (
     <div className="downloads">
-      <h2>Downloads ({downloads.length || 0} total)</h2>
+      <h1>Downloads ({downloads.length || 0} total)</h1>
 
       <table>
         <thead>

@@ -7,7 +7,7 @@ import AdminDashboard from './components/Admin Dashboard/AdminDashboard';
 import Profile from './components/Profile';
 import {
   BrowserRouter as Router,
-  Routes,
+  Routes, 
   Route,
   useNavigate,
   useLocation,
