@@ -138,29 +138,6 @@
   transform: scale(1.03);
 }
 
-/* Navbar */
-.navbar ul {
-  list-style: none;
-  padding-left: 1.5rem;
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: var(--primary-color);
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: var(--transition);
-}
-
-.navbar a:hover {
-  color: var(--accent-color);
-  border-bottom: 0.15rem solid var(--accent-color);
-}
-
 /* Search Container */
 .search-container {
   display: flex;

@@ -5,18 +5,21 @@ import AuthForm from './components/Auth/AuthForm';
 import Dashboard from './components/User Dashboard/Dashboard';
 import AdminDashboard from './components/Admin Dashboard/AdminDashboard';
 import Profile from './components/Profile';
+import Layout from '../src/components/Layout';
+
 import {
   BrowserRouter as Router,
-  Routes, 
+  Routes,
   Route,
   useNavigate,
   useLocation,
 } from 'react-router-dom';
+
 import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
 
-// Wrapper for LandingPage to handle Get Started nav
+// Wrapper for LandingPage to handle "Get Started" button navigation
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
   const handleGetStarted = () => navigate('/auth');
@@ -60,7 +63,7 @@ const App = () => {
         setUser(null);
         const isPublic = path === '/' || path === '/auth';
         if (!isPublic) {
-          navigate('/', { replace: true }); // ⬅️ Redirect to Landing Page when logged out
+          navigate('/', { replace: true });
         }
       }
 
@@ -93,37 +96,75 @@ const App = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPageWrapper />} />
-      <Route path="/auth" element={<AuthForm />} />
+      <Route 
+        path="/" 
+        element={
+          <Layout user={memoizedUser}>
+            <LandingPageWrapper />
+          </Layout>
+        } 
+      />
+      <Route 
+        path="/auth" 
+        element={
+          <Layout user={memoizedUser}>
+            <AuthForm />
+          </Layout>
+        } 
+      />
       <Route
         path="/dashboard"
-        element={memoizedUser ? <Dashboard user={memoizedUser} /> : <LandingPageWrapper />}
+        element={
+          memoizedUser ? (
+            <Layout user={memoizedUser} handleLogout={handleLogout}>
+              <Dashboard user={memoizedUser} />
+            </Layout>
+          ) : (
+            <Layout>
+              <LandingPageWrapper />
+            </Layout>
+          )
+        }
       />
       <Route
         path="/admin-dashboard"
         element={
           memoizedUser?.role === 'admin' ? (
-            <AdminDashboard
-              user={memoizedUser}
-              handleLogout={handleLogout}
-              handleProfileClick={handleProfileClick}
-            />
+            <Layout user={memoizedUser} handleLogout={handleLogout}>
+              <AdminDashboard
+                user={memoizedUser}
+                handleLogout={handleLogout}
+                handleProfileClick={handleProfileClick}
+              />
+            </Layout>
           ) : (
-            <LandingPageWrapper />
+            <Layout>
+              <LandingPageWrapper />
+            </Layout>
           )
         }
       />
       <Route
         path="/profile"
-        element={memoizedUser ? <Profile user={memoizedUser} /> : <LandingPageWrapper />}
+        element={
+          memoizedUser ? (
+            <Layout user={memoizedUser} handleLogout={handleLogout}>
+              <Profile user={memoizedUser} />
+            </Layout>
+          ) : (
+            <Layout>
+              <LandingPageWrapper />
+            </Layout>
+          )
+        }
       />
     </Routes>
   );
 };
 
-// ✅ Set basename for subfolder deployment (like GitHub Pages or custom subpaths)
+// ✅ Ensure subpath works correctly (e.g., for GitHub Pages or /capacitiprojectbase/)
 const AppWrapper = () => (
-  <Router basename={process.env.PUBLIC_URL || '/'}>
+  <Router basename="/capacitiprojectbase">
     <App />
   </Router>
 );

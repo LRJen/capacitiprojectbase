@@ -67,36 +67,104 @@
   
   .main-content {
     flex: 1;
-    padding: 20px;
   }
   
+ .footer {
+  background-color: #0E3C67;
+  color: #fff;
+  font-size: 1rem;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 3rem 5vw; /* Adds spacing to left/right edges */
+  gap: 2rem; /* Even spacing between columns */
+  flex-wrap: wrap; /* Wraps for small screens */
+}
+
+/* Each section in the footer */
+.footer-logo,
+.footer-links,
+.footer-connect {
+  flex: 1;
+  min-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem; /* Space between items in each section */
+}
+
+/* Correct selector name (was `footer-logo` instead of `.footer-logo`) */
+.footer-logo img {
+  max-height: 20vh;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+footer-logo p {
+  font-weight: bold;
+} 
+
+/* Footer Links */
+.footer-links a,
+.footer-connect a {
+  display: inline-block;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: large;
+  transition: transform 0.3s ease;
+}
+
+.footer-links h2,
+.footer-connect h2 {
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 2rem;
+}
+
+.footer-links a:hover,
+.footer-connect a:hover {
+  transform: scale(1.05);
+}
+
+.footer-links ul,
+.footer-connect ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 0.5rem; /* adds vertical spacing between <li> */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* optional, center the list items */
+}
+
+/* Optional: Style footer contact info */
+.footer-connect p {
+  margin: 0.4rem 0;
+}
+
+/* Responsive: Stack columns on small screens */
+@media (max-width: 768px) {
   .footer {
-    background-color: #f8f9fa;
-    padding: 20px;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    border-top: 1px solid #e9ecef;
+    padding: 2rem 2vw;
   }
-  
-  .footer-logo {
-    height: 40px;
-    margin-bottom: 10px;
+
+  .footer-logo,
+  .footer-links,
+  .footer-connect {
+    margin-bottom: 1.5rem;
   }
-  
-  .footer p {
-    margin: 5px 0;
-    color: #666;
-  }
-  
-  .footer-links {
-    margin-top: 10px;
-  }
-  
-  .footer-links a {
-    margin: 0 10px;
-    text-decoration: none;
-    color: #007bff;
-  }
-  
-  .footer-links a:hover {
-    color: #0056b3;
-  }
+}
+
+/* Layout wrapper */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
