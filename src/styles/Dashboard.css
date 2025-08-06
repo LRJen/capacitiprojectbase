@@ -13,7 +13,6 @@
 .dashboard-container {
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
   background: #eeeeee;
@@ -29,7 +28,7 @@
   padding: 1.5rem 2vw;
   margin-bottom: 1.5rem;
   background: white;
-  border-bottom: 0.3rem solid var(--primary-color);
+  border-bottom: 0.15rem solid var(--primary-color);
   box-shadow: var(--shadow);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   flex-wrap: wrap;

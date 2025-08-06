@@ -230,7 +230,7 @@
 
 .navbar.scrolled {
   background-color: #0E3C67;
-  border-bottom: #ffffff 0.2rem solid;
+  border-bottom: #007bff 0.2rem solid;
   color: white;
 }
 
@@ -289,6 +289,7 @@
 .navbar-links a:hover {
   transform: scale(1.05);
   text-decoration: none;
+  border-bottom: #007bff 0.15rem solid;
 }
 
 .navbar-right {

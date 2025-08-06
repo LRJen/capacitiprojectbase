@@ -136,12 +136,12 @@
   font-size: 0.95rem;
   color: white;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
   font-weight: bold;
 }
 
 .toggle-form-text:hover {
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
 }
 
 /* Forgot Password */
@@ -151,12 +151,13 @@
   color: #0E3C67;
   cursor: pointer;
   text-align: center;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
   font-weight: bold
 }
 
 .forgot-password-text:hover {
-  color: #3472AB;
+  border-bottom: #007bff 0.15rem solid;
+  transform: scale(1.05);
 }
 
 /* Validation Feedback */

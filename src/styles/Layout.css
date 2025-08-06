@@ -80,6 +80,7 @@
   padding: 3rem 5vw; /* Adds spacing to left/right edges */
   gap: 2rem; /* Even spacing between columns */
   flex-wrap: wrap; /* Wraps for small screens */
+  border-top: #007bff 0.15rem solid;
 }
 
 /* Each section in the footer */
@@ -128,6 +129,7 @@ footer-logo p {
 .footer-links a:hover,
 .footer-connect a:hover {
   transform: scale(1.05);
+  border-bottom: #007bff 0.15rem solid;
 }
 
 .footer-links ul,
