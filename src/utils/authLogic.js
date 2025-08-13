@@ -33,19 +33,23 @@ export const handleAuthSubmission = async (e, formData, isSignUp, isAdmin) => {
       await set(ref(db, `userDownloads/${user.uid}`), {});
       alert('Registered! Please verify your email.');
       await auth.signOut();
+      return null; // No navigation on signup
     } else {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+
       if (!user.emailVerified) {
         await auth.signOut();
         alert('Verify your email before logging in.');
-        return;
+        return null;
       }
 
       const snap = await get(ref(db, `users/${user.uid}`));
       const userData = snap.val();
       const role = userData?.role || 'user';
-      window.location.href = role === 'admin' ? '/admin-dashboard' : '/dashboard';
+
+      // Return role instead of navigating
+      return role;
     }
   } catch (err) {
     if (err.code === 'auth/account-exists-with-different-credential') {
@@ -54,6 +58,7 @@ export const handleAuthSubmission = async (e, formData, isSignUp, isAdmin) => {
       alert(err.message);
     }
     console.error('Auth error:', err.code, err.message);
+    return null;
   }
 };
 
@@ -78,7 +83,9 @@ export const handleGoogleSignIn = async () => {
 
     const userData = (await get(ref(db, `users/${user.uid}`))).val();
     const role = userData?.role || 'user';
-    window.location.href = role === 'admin' ? '/admin-dashboard' : '/dashboard';
+
+    // Return role instead of navigating
+    return role;
   } catch (error) {
     if (error.code === 'auth/popup-closed-by-user') {
       alert('Popup closed before completing sign in.');
@@ -86,5 +93,6 @@ export const handleGoogleSignIn = async () => {
       alert(error.message);
     }
     console.error('Google Sign-In Error:', error.code, error.message);
+    return null;
   }
 };

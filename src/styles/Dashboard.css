@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #0E3C67;
-  --accent-color: #70BDF4;
+  --primary-color: #003464;
+  --accent-color: #007bff;
   --secondary-bg: #DDE8F1;
   --text-color: #3472AB;
   --muted-text: #6488AA;
@@ -15,7 +15,7 @@
   margin: 0 auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
-  background: #eeeeee;
+  background: #ffffff;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -27,8 +27,8 @@
   align-items: center;
   padding: 1.5rem 2vw;
   margin-bottom: 1.5rem;
-  background: white;
-  border-bottom: 0.15rem solid var(--primary-color);
+  background-color: var(--primary-color);
+  border-bottom: 0.15rem solid var(--accent-color);
   box-shadow: var(--shadow);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   flex-wrap: wrap;

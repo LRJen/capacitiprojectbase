@@ -28,13 +28,13 @@
 .landing-title {
   font-size: 3rem;
   font-weight: 600;
-  color: #0E3C67;
+  color: var(--primary-color);
   margin: 1rem 0;
 }
 
 .landing-description {
   font-size: 1.25rem;
-  color: #0E3C67;
+  color: var(--primary-color)#0E3C67;
   max-width: 40rem;
   margin-bottom: 2rem;
   line-height: 1.6;
@@ -85,9 +85,9 @@
 .get-started-button {
   padding: 1rem 2rem;
   background-color: white;
-  color: #0E3C67;
+  color: var(--primary-color);
   border-radius: 0.5rem;
-  border: 0.15rem solid #0E3C67;
+  border: 0.15rem solid var(--primary-color);
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
@@ -96,7 +96,7 @@
 
 .get-started-button:hover {
   color: white;
-  background-color: #0E3C67 ;
+  background-color: var(--primary-color);
 }
 
 /* === Recommendation Popup === */
@@ -120,7 +120,7 @@
 .recommendation-popup h2 {
   margin-top: 0;
   font-size: 1.4rem;
-  color: #0E3C67;
+  color: var(--primary-color);
 }
 
 .recommendation-popup ul {
@@ -135,7 +135,7 @@
 }
 
 .recommendation-popup a {
-  color: #007bff;
+  color: var(--accent-color);
   font-weight: 600;
   text-decoration: none;
 }
@@ -229,8 +229,8 @@
 }
 
 .navbar.scrolled {
-  background-color: #0E3C67;
-  border-bottom: #007bff 0.2rem solid;
+  background-color: var(--primary-color);
+  border-bottom: var(--accent-color) 0.2rem solid;
   color: white;
 }
 
@@ -259,7 +259,7 @@
 .navbar-title {
   font-size: 1.6rem;
   font-weight: 600;
-  color: #0E3C67;
+  color: var(--primary-color);
 }
 
 .navbar.scrolled .navbar-title {
@@ -275,7 +275,7 @@
 }
 
 .navbar-links a {
-  color: #0E3C67;
+  color: var(--primary-color);
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 500;
@@ -289,7 +289,7 @@
 .navbar-links a:hover {
   transform: scale(1.05);
   text-decoration: none;
-  border-bottom: #007bff 0.15rem solid;
+  border-bottom: var(--accent-color) 0.15rem solid;
 }
 
 .navbar-right {
@@ -302,28 +302,28 @@
   padding: 0.6rem 1.5rem;
   font-size: 1rem;
   background-color: white;
-  color: #0E3C67;
+  color: var(--primary-color);
   border-radius: 0.5rem;
-  border: 0.15rem solid #0E3C67;
+  border: 0.15rem solid var(--primary-color);
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease;
   font-weight: bold;
 }
 
 .navbar.scrolled .nav-auth-button {
-  background-color: #0E3C67;
+  background-color: var(--primary-color)#0E3C67;
   color: white;
   border: 0.15rem solid #ffffff;
 }
 
 .nav-auth-button:hover {
-  background-color: #0E3C67;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .navbar.scrolled .nav-auth-button:hover {
   background-color: #ffffff;
-  color: #0E3C67;
+  color: var(--primary-color);
 }
 
 main {

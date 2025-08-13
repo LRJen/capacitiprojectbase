@@ -10,7 +10,7 @@
 .auth-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #0E3C67;
+  color: var(--primary-color);
   margin-bottom: 2vh;
 }
 
@@ -28,13 +28,13 @@
   cursor: pointer;
   transition: background 0.3s ease;
   font-weight: 600;
-  color: #0E3C67;
+  color: var(--primary-color);
   border-radius: 0.5rem;
-  border: 0.15rem solid #0E3C67;
+  border: 0.15rem solid var(--primary-color);
 }
 
 .auth-toggle-buttons .active {
-  background: #0E3C67;
+  background: var(--primary-color);
   color: white;
   font-weight: 600;
 }
@@ -49,7 +49,7 @@
   gap: 1.2rem;
   width: 100%;
   max-width: 28rem;
-  background: #0E3C67; /* Top-left to bottom-right */
+  background: var(--primary-color); /* Top-left to bottom-right */
   padding: 2rem;
   border-radius: 0.8rem;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
@@ -67,7 +67,7 @@
   text-align: center;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
   outline: none;
-  color: #0E3C67;
+  color: var(--primary-color);
   font-weight: 500;
 }
 
@@ -76,16 +76,16 @@
 }
 
 .auth-form input::placeholder {
-  color: #0E3C67;
+  color: var(--primary-color);
   opacity: 1;
 }
 
 .auth-form input:-ms-input-placeholder { /* IE 10-11 */
-  color: #0E3C67;
+  color: var(--primary-color);
 }
 
 .auth-form input::-ms-input-placeholder { /* Edge */
-  color: #0E3C67;
+  color: var(--primary-color);
 }
 
 /* Password Field Wrapper */
@@ -111,7 +111,7 @@
 /* Auth Buttons */
 .auth-button {
   padding: 0.6rem;
-  background: #0E3C67;
+  background: var(--primary-color);
   color: white;
   border: 0.15rem solid white;
   font-size: 1.1rem;
@@ -125,8 +125,8 @@
 
 .auth-button:hover {
   background: white;
-  color: #0E3C67;
-  border: 0.15rem solid #0E3C67;
+  color: var(--primary-color);
+  border: 0.15rem solid var(--primary-color);
 }
 
 /* Switch Form Button */
@@ -148,7 +148,7 @@
 .forgot-password-text {
   margin-top: 1rem;
   font-size: 0.95rem;
-  color: #0E3C67;
+  color: var(--primary-color);
   cursor: pointer;
   text-align: center;
   transition: color 0.3s ease, transform 0.3s ease;
@@ -156,7 +156,7 @@
 }
 
 .forgot-password-text:hover {
-  border-bottom: #007bff 0.15rem solid;
+  border-bottom: var(--accent-color) 0.15rem solid;
   transform: scale(1.05);
 }
 
@@ -203,7 +203,7 @@
 .back-to-login-text {
   margin-top: 0.8rem;
   font-size: 0.95rem;
-  color: #0E3C67;
+  color: var(--primary-color);
   cursor: pointer;
   text-align: center;
   transition: color 0.3s ease;

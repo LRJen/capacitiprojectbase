@@ -38,12 +38,12 @@
   
   .header-nav a {
     text-decoration: none;
-    color: #007bff;
+    color: var(--accent-color);
     font-weight: 500;
   }
   
   .header-nav a:hover {
-    color: #0056b3;
+    color: var(--accent-color);
   }
   
   .logout-button {
@@ -70,7 +70,7 @@
   }
   
  .footer {
-  background-color: #0E3C67;
+  background-color: var(--primary-color);
   color: #fff;
   font-size: 1rem;
   margin-top: auto;
@@ -80,7 +80,7 @@
   padding: 3rem 5vw; /* Adds spacing to left/right edges */
   gap: 2rem; /* Even spacing between columns */
   flex-wrap: wrap; /* Wraps for small screens */
-  border-top: #007bff 0.15rem solid;
+  border-top: var(--accent-color) 0.15rem solid;
 }
 
 /* Each section in the footer */
@@ -129,7 +129,7 @@ footer-logo p {
 .footer-links a:hover,
 .footer-connect a:hover {
   transform: scale(1.05);
-  border-bottom: #007bff 0.15rem solid;
+  border-bottom: var(--accent-color) 0.15rem solid;
 }
 
 .footer-links ul,

@@ -19,10 +19,17 @@ import { auth, db } from './firebase';
 import { ref as dbRef, get } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
 
+// 🔑 One source of truth for your subfolder
+const BASENAME = '/capacitiprojectbase';
+
+// Small helper to strip the basename when comparing paths
+const stripBase = (p) => (p.startsWith(BASENAME) ? p.slice(BASENAME.length) || '/' : p);
+
 // Wrapper for LandingPage to handle "Get Started" button navigation
 const LandingPageWrapper = () => {
   const navigate = useNavigate();
-  const handleGetStarted = () => navigate('/auth');
+  // Navigate to /capacitiprojectbase/auth (no more accidental root redirect)
+  const handleGetStarted = () => navigate(`${BASENAME}/auth`);
   return <LandingPage onGetStarted={handleGetStarted} />;
 };
 
@@ -34,7 +41,8 @@ const App = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      const path = location.pathname;
+      const rawPath = location.pathname;      // e.g. "/capacitiprojectbase/auth"
+      const path = stripBase(rawPath);        // e.g. "/auth"
 
       if (currentUser) {
         try {
@@ -51,9 +59,10 @@ const App = () => {
 
           setUser(userObj);
 
+          // If coming from /auth, push them to the correct dashboard
           if (path === '/auth') {
-            const target = userObj.role === 'admin' ? '/admin-dashboard' : '/dashboard';
-            navigate(target, { replace: true });
+            const target = userObj.role === 'admin' ? 'admin-dashboard' : 'dashboard';
+            navigate(`/${target}`, { replace: true });
           }
         } catch (err) {
           console.error('Error fetching user data:', err);
@@ -61,9 +70,10 @@ const App = () => {
         }
       } else {
         setUser(null);
+        // Only "/" and "/auth" are public
         const isPublic = path === '/' || path === '/auth';
         if (!isPublic) {
-          navigate('/', { replace: true });
+          navigate(`${BASENAME}/`, { replace: true });
         }
       }
 
@@ -73,10 +83,7 @@ const App = () => {
     return () => unsubscribe();
   }, [location.pathname, navigate]);
 
-  const memoizedUser = useMemo(() => {
-    if (!user) return null;
-    return { ...user };
-  }, [user]);
+  const memoizedUser = useMemo(() => (user ? { ...user } : null), [user]);
 
   if (loading) return <div className="loading">Loading...</div>;
 
@@ -84,36 +91,41 @@ const App = () => {
     try {
       await auth.signOut();
       setUser(null);
-      navigate('/');
+      navigate(`${BASENAME}/`);
     } catch (err) {
       console.error('Logout error:', err);
     }
   };
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate(`${BASENAME}/profile`);
   };
 
   return (
     <Routes>
-      <Route 
-        path="/" 
+      {/* Index/Landing */}
+      <Route
+        path="/"
         element={
           <Layout user={memoizedUser}>
             <LandingPageWrapper />
           </Layout>
-        } 
+        }
       />
-      <Route 
-        path="/auth" 
+
+      {/* Auth */}
+      <Route
+        path="auth"
         element={
           <Layout user={memoizedUser}>
             <AuthForm />
           </Layout>
-        } 
+        }
       />
+
+      {/* User Dashboard */}
       <Route
-        path="/dashboard"
+        path="dashboard"
         element={
           memoizedUser ? (
             <Layout user={memoizedUser} handleLogout={handleLogout}>
@@ -126,8 +138,10 @@ const App = () => {
           )
         }
       />
+
+      {/* Admin Dashboard */}
       <Route
-        path="/admin-dashboard"
+        path="admin-dashboard"
         element={
           memoizedUser?.role === 'admin' ? (
             <Layout user={memoizedUser} handleLogout={handleLogout}>
@@ -144,8 +158,10 @@ const App = () => {
           )
         }
       />
+
+      {/* Profile */}
       <Route
-        path="/profile"
+        path="profile"
         element={
           memoizedUser ? (
             <Layout user={memoizedUser} handleLogout={handleLogout}>
@@ -162,9 +178,9 @@ const App = () => {
   );
 };
 
-// ✅ Ensure subpath works correctly (e.g., for GitHub Pages or /capacitiprojectbase/)
+// ✅ Router with basename — keeps the URL under /capacitiprojectbase/...
 const AppWrapper = () => (
-  <Router basename="/capacitiprojectbase">
+  <Router basename={BASENAME}>
     <App />
   </Router>
 );
