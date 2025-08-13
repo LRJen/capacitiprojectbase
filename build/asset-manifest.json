@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/capacitiprojectbase/static/css/main.80300e18.css",
-    "main.js": "/capacitiprojectbase/static/js/main.b129716e.js",
+    "main.css": "/capacitiprojectbase/static/css/main.449a15e5.css",
+    "main.js": "/capacitiprojectbase/static/js/main.cc1d079b.js",
     "static/js/453.fa962200.chunk.js": "/capacitiprojectbase/static/js/453.fa962200.chunk.js",
     "static/media/logo-light.png": "/capacitiprojectbase/static/media/logo-light.fd250ea13fee24ae0d77.png",
     "index.html": "/capacitiprojectbase/index.html",
-    "main.80300e18.css.map": "/capacitiprojectbase/static/css/main.80300e18.css.map",
-    "main.b129716e.js.map": "/capacitiprojectbase/static/js/main.b129716e.js.map",
+    "main.449a15e5.css.map": "/capacitiprojectbase/static/css/main.449a15e5.css.map",
+    "main.cc1d079b.js.map": "/capacitiprojectbase/static/js/main.cc1d079b.js.map",
     "453.fa962200.chunk.js.map": "/capacitiprojectbase/static/js/453.fa962200.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.80300e18.css",
-    "static/js/main.b129716e.js"
+    "static/css/main.449a15e5.css",
+    "static/js/main.cc1d079b.js"
   ]
 }
